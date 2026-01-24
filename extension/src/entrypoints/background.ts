@@ -1,7 +1,4 @@
-import {
-  Message,
-  CreateArchiveRequest,
-} from "../messaging";
+import { Message, CreateArchiveRequest } from "../messaging";
 
 async function getCurrentTab() {
   let queryOptions = { active: true, lastFocusedWindow: true };

@@ -1,7 +1,4 @@
-import {
-  CreateArchiveRequest,
-  Message,
-} from "../../messaging";
+import { CreateArchiveRequest, Message } from "../../messaging";
 
 const createArchiveButton = document.getElementById(
   "create-archive-btn"
@@ -9,7 +6,7 @@ const createArchiveButton = document.getElementById(
 
 createArchiveButton.addEventListener("click", async (e) => {
   createArchiveButton.disabled = true;
-  createArchiveButton.textContent = "Generating..."
+  createArchiveButton.textContent = "Generating...";
   try {
     const req: CreateArchiveRequest = {
       id: Message.CREATE_ARCHIVE,

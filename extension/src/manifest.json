@@ -16,18 +16,12 @@
   "background": {
     "service_worker": "background.js",
     "type": "module",
-    "scripts": [
-      "background.js"
-    ]
+    "scripts": ["background.js"]
   },
   "content_scripts": [
     {
-      "matches": [
-        "*://*.chatgpt.com/*"
-      ],
-      "js": [
-        "content.js"
-      ]
+      "matches": ["*://*.chatgpt.com/*"],
+      "js": ["content.js"]
     }
   ]
 }

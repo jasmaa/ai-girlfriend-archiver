@@ -1,5 +1,5 @@
 export enum Message {
-  CREATE_ARCHIVE = "create-archive"
+  CREATE_ARCHIVE = "create-archive",
 }
 
 export interface CreateArchiveRequest {
