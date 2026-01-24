@@ -37,7 +37,7 @@ async function getSession() {
     });
     const getConversationData = await getConversationRes.json();
     console.log(getConversationData);
-    zip.file(`chatgpt-${conversationId}.json`, JSON.stringify(getConversationData));
+    zip.file(`${conversationId}.json`, JSON.stringify(getConversationData));
   }
 
   const content = await zip.generateAsync({ type: "blob" });
