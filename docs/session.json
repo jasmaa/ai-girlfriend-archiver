@@ -1,0 +1,32 @@
+{
+  "user": {
+    "id": "",
+    "name": "John Doe",
+    "email": "johndoe@example.com.com",
+    "image": "",
+    "picture": "",
+    "idp": "",
+    "iat": 1769258349,
+    "mfa": false
+  },
+  "expires": "2026-04-24T13:16:03.566Z",
+  "account": {
+    "id": "",
+    "planType": "free",
+    "structure": "personal",
+    "workspaceType": null,
+    "organizationId": null,
+    "isFedrampCompliantWorkspace": false,
+    "isDelinquent": false,
+    "gracePeriodId": null,
+    "residencyRegion": "no_constraint",
+    "computeResidency": "no_constraint"
+  },
+  "accessToken": "",
+  "authProvider": "openai",
+  "rumViewTags": {
+    "light_account": {
+      "fetched": false
+    }
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "manifest_version": 3,
+  "name": "aichiver",
+  "version": "0.0.1",
+  "description": "Archives your GF",
+  "icons": {
+    "48": "icons/logo_48.png",
+    "96": "icons/logo_96.png"
+  },
+  "action": {
+    "default_popup": "popup/index.html",
+    "default_icon": {
+      "48": "icons/logo_48.png"
+    }
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "*://*.chatgpt.com/*"
+      ],
+      "js": [
+        "content.js",
+        "jszip.min.js",
+        "FileSaver.min.js"
+      ]
+    }
+  ]
+}
