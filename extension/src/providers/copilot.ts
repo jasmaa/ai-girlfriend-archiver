@@ -3,20 +3,20 @@ import JSZip from "jszip";
 const BASE_URL = "https://copilot.microsoft.com";
 
 interface Session {
-  accessCredentials: any
-  idCredentials: any
+  accessCredentials: any;
+  idCredentials: any;
 }
 
 interface ListConversationsResponse {
   results: {
-    id: string
-  }[]
-  next: string | null
+    id: string;
+  }[];
+  next: string | null;
 }
 
 interface ListConversationHistoryResponse {
-  results: any[]
-  next: string | null
+  results: any[];
+  next: string | null;
 }
 
 enum IdentityType {
@@ -25,14 +25,16 @@ enum IdentityType {
 
 async function getCopilotSession() {
   if (!localStorage.getItem("hasBeenAuthenticated")) {
-    throw new Error("no session found!")
+    throw new Error("no session found!");
   }
 
   let idCredentials;
   let accessCredentials;
   const keys = Object.keys(localStorage);
   for (const key of keys) {
-    if (key.match(/@@auth0spajs@@::(.+)::https:\/\/copilot\.microsoft\.com::(.+)/)) {
+    if (
+      key.match(/@@auth0spajs@@::(.+)::https:\/\/copilot\.microsoft\.com::(.+)/)
+    ) {
       const item = JSON.parse(localStorage.getItem(key));
       accessCredentials = item;
     } else if (key.match(/@@auth0spajs@@::(.+)::@@user@@/)) {
@@ -44,7 +46,7 @@ async function getCopilotSession() {
   const session: Session = {
     idCredentials,
     accessCredentials,
-  }
+  };
 
   return session;
 }
@@ -65,26 +67,37 @@ export async function generateArchive() {
   const identityType = determineIdentityType(session);
 
   // TODO: handle pagination
-  const listConversationsRes = await fetch(`${BASE_URL}/c/api/conversations?types=chat,character,xbox,group`, {
-    headers: {
-      "authorization": `Bearer ${accessToken}`,
-      "x-useridentitytype": identityType,
+  const listConversationsRes = await fetch(
+    `${BASE_URL}/c/api/conversations?types=chat,character,xbox,group`,
+    {
+      headers: {
+        authorization: `Bearer ${accessToken}`,
+        "x-useridentitytype": identityType,
+      },
     }
-  });
-  const listConversationsData: ListConversationsResponse = await listConversationsRes.json();
+  );
+  const listConversationsData: ListConversationsResponse =
+    await listConversationsRes.json();
 
   const zip = new JSZip();
   for (const conversation of listConversationsData.results) {
     // TODO: handle pagination
     const conversationId = conversation.id;
-    const getConversationHistoryRes = await fetch(`${BASE_URL}/c/api/conversations/${conversationId}/history`, {
-      headers: {
-        "authorization": `Bearer ${accessToken}`,
-        "x-useridentitytype": identityType,
+    const getConversationHistoryRes = await fetch(
+      `${BASE_URL}/c/api/conversations/${conversationId}/history`,
+      {
+        headers: {
+          authorization: `Bearer ${accessToken}`,
+          "x-useridentitytype": identityType,
+        },
       }
-    });
-    const listConversationHistoryData: ListConversationHistoryResponse = await getConversationHistoryRes.json();
-    zip.file(`${conversationId}.json`, JSON.stringify(listConversationHistoryData.results));
+    );
+    const listConversationHistoryData: ListConversationHistoryResponse =
+      await getConversationHistoryRes.json();
+    zip.file(
+      `${conversationId}.json`,
+      JSON.stringify(listConversationHistoryData.results)
+    );
   }
 
   const content = await zip.generateAsync({ type: "blob" });

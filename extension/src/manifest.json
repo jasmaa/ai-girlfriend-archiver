@@ -16,9 +16,7 @@
   "background": {
     "service_worker": "background.js",
     "type": "module",
-    "scripts": [
-      "background.js"
-    ]
+    "scripts": ["background.js"]
   },
   "content_scripts": [
     {
@@ -27,9 +25,7 @@
         "*://*.copilot.microsoft.com/*",
         "*://*.gemini.google.com/*"
       ],
-      "js": [
-        "content.js"
-      ]
+      "js": ["content.js"]
     }
   ]
 }

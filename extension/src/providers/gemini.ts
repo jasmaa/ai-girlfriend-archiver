@@ -49,18 +49,31 @@ export async function generateArchive() {
   // List all chats
   // [resultsPerPage, null, [???, null, ???]]
   const listChatsReqPayload = [100, null, [0, null, 1]];
-  const listChatsReqParams = new URLSearchParams()
-  listChatsReqParams.append("f.req", JSON.stringify([
-    [[RPCId.LIST_CHATS, JSON.stringify(listChatsReqPayload), null, "generic"]],
-  ]));
+  const listChatsReqParams = new URLSearchParams();
+  listChatsReqParams.append(
+    "f.req",
+    JSON.stringify([
+      [
+        [
+          RPCId.LIST_CHATS,
+          JSON.stringify(listChatsReqPayload),
+          null,
+          "generic",
+        ],
+      ],
+    ])
+  );
   listChatsReqParams.append("at", accessToken);
-  const listChatsRes = await fetch(`${BASE_URL}/u/${userIndex}/_/BardChatUi/data/batchexecute`, {
-    method: "POST",
-    body: listChatsReqParams,
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded;charset=utf-8"
+  const listChatsRes = await fetch(
+    `${BASE_URL}/u/${userIndex}/_/BardChatUi/data/batchexecute`,
+    {
+      method: "POST",
+      body: listChatsReqParams,
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded;charset=utf-8",
+      },
     }
-  });
+  );
 
   const listChatsData = await listChatsRes.text();
   const parsedListChatsData = JSON.parse(listChatsData.replace(")]}'", ""));
@@ -76,17 +89,30 @@ export async function generateArchive() {
     // [chatId, ...???]
     const readChatReqPayload = [chatId, 10, null, 1, [0], [4], null, 1];
     const readChatReqParams = new URLSearchParams();
-    readChatReqParams.append("f.req", JSON.stringify([
-      [[RPCId.READ_CHAT, JSON.stringify(readChatReqPayload), null, "generic"]],
-    ]));
+    readChatReqParams.append(
+      "f.req",
+      JSON.stringify([
+        [
+          [
+            RPCId.READ_CHAT,
+            JSON.stringify(readChatReqPayload),
+            null,
+            "generic",
+          ],
+        ],
+      ])
+    );
     readChatReqParams.append("at", accessToken);
-    const readChatRes = await fetch(`${BASE_URL}/u/${userIndex}/_/BardChatUi/data/batchexecute`, {
-      method: "POST",
-      body: readChatReqParams,
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded;charset=utf-8"
+    const readChatRes = await fetch(
+      `${BASE_URL}/u/${userIndex}/_/BardChatUi/data/batchexecute`,
+      {
+        method: "POST",
+        body: readChatReqParams,
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded;charset=utf-8",
+        },
       }
-    });
+    );
 
     const readChatData = await readChatRes.text();
     const parsedReadChatData = JSON.parse(readChatData.replace(")]}'", ""));
