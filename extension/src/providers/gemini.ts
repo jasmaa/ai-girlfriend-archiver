@@ -26,7 +26,15 @@ interface ReadChatRequest {
   chatId: string;
 }
 
-type ReadChatResponse = any;
+interface ReadChatResponse {
+  results: {
+    chatId: string;
+    userMessageId: string;
+    userMessage: string;
+    assistantMessageId: string;
+    assistantMessage: string;
+  }[];
+}
 
 // TODO: figure out what rest of RPC args are. Reference: https://github.com/HanaokaYuzu/Gemini-API/
 class GeminiClient {
@@ -91,11 +99,24 @@ class GeminiClient {
     // Deserialize
     const parsedTask = JSON.parse(rawResponse.replace(")]}'", ""));
     const parsedResponse = JSON.parse(parsedTask[0][2]);
-    const chat = parsedResponse[0];
 
     // TODO: figure out and map to response schema
+    const results = [];
+    const chat = parsedResponse[0];
+    for (const message of chat) {
+      results.push({
+        chatId: message[0][0],
+        userMessageId: message[0][1],
+        userMessage: message[2][0][0],
+        assistantMessageId: message[3][0][0][0],
+        assistantMessage: message[3][0][0][1][0],
+      });
+    }
 
-    return chat;
+    // Reverse to put in chronological order
+    results.reverse();
+
+    return { results };
   }
 
   private async batchExecute(rawRequest: string) {
@@ -170,10 +191,10 @@ export async function generateArchive() {
   const zip = new JSZip();
   for (const chatSummary of listChatsRes.results) {
     const { chatId } = chatSummary;
-    const chat = await client.readChat({
+    const readChatRes = await client.readChat({
       chatId,
     });
-    zip.file(`${chatId}.json`, JSON.stringify(chat));
+    zip.file(`${chatId}.json`, JSON.stringify(readChatRes.results));
   }
 
   const content = await zip.generateAsync({ type: "blob" });
