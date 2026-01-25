@@ -17,7 +17,8 @@
     {
       "matches": [
         "*://*.chatgpt.com/*",
-        "*://*.copilot.microsoft.com/*"
+        "*://*.copilot.microsoft.com/*",
+        "*://*.gemini.google.com/*"
       ],
       "js": [
         "content.js",

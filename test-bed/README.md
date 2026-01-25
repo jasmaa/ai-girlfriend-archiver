@@ -6,9 +6,9 @@ Test bed extension for testing APIs.
 
 https://firstpagesage.com/reports/top-generative-ai-chatbots/
 
-- ChatGPT: kinda done
-- Gemini: confused
-- Copilot: kinda done
+- ChatGPT: poc
+- Gemini: poc
+- Copilot: poc
 - Perplexity: TODO
 - Claude: TODO
 - Grok: TODO
