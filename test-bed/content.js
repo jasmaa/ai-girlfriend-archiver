@@ -105,7 +105,7 @@ async function generateCopilotArchive() {
 function getGoogleUserIndex() {
   const userIndexRe = /u\/(\d+)/;
   const parts = userIndexRe.exec(window.location.href);
-  if (!parts && parts < 1) {
+  if (!parts && parts.length < 1) {
     // Default 0th user
     return 0;
   } else {
