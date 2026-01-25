@@ -2,9 +2,120 @@ import JSZip from "jszip";
 
 const BASE_URL = "https://gemini.google.com";
 
+interface Session {
+  accessToken: string;
+  userIndex: number;
+}
+
 enum RPCId {
   LIST_CHATS = "MaZiqc",
   READ_CHAT = "hNvQHb",
+}
+
+interface ListChatsRequest {
+  maxResultsPerPage: number;
+}
+
+interface ListChatsResponse {
+  results: {
+    chatId: string;
+  }[];
+}
+
+interface ReadChatRequest {
+  chatId: string;
+}
+
+type ReadChatResponse = any;
+
+// TODO: figure out what rest of RPC args are. Reference: https://github.com/HanaokaYuzu/Gemini-API/
+class GeminiClient {
+  private session: Session;
+
+  constructor(session: Session) {
+    this.session = session;
+  }
+
+  async listChats(req: ListChatsRequest): Promise<ListChatsResponse> {
+    // Serialize
+    // List all chats
+    // [resultsPerPage, null, [???, null, ???]]
+    const rawRequest = JSON.stringify([
+      [
+        [
+          RPCId.LIST_CHATS,
+          JSON.stringify([req.maxResultsPerPage, null, [0, null, 1]]),
+          null,
+          "generic",
+        ],
+      ],
+    ]);
+
+    // Execute
+    const rawResponse = await this.batchExecute(rawRequest);
+
+    // Deserialize
+    const parsedTask = JSON.parse(rawResponse.replace(")]}'", ""));
+    const parsedResponse = JSON.parse(parsedTask[0][2]);
+    const chats = parsedResponse[2];
+    const results = [];
+    for (const chat of chats) {
+      results.push({
+        chatId: chat[0],
+      });
+    }
+
+    return {
+      results,
+    };
+  }
+
+  async readChat(req: ReadChatRequest): Promise<ReadChatResponse> {
+    // Serialize
+    // Read chat content
+    // [chatId, ...???]
+    const rawRequest = JSON.stringify([
+      [
+        [
+          RPCId.READ_CHAT,
+          JSON.stringify([req.chatId, 10, null, 1, [0], [4], null, 1]),
+          null,
+          "generic",
+        ],
+      ],
+    ]);
+
+    // Execute
+    const rawResponse = await this.batchExecute(rawRequest);
+
+    // Deserialize
+    const parsedTask = JSON.parse(rawResponse.replace(")]}'", ""));
+    const parsedResponse = JSON.parse(parsedTask[0][2]);
+    const chat = parsedResponse[0];
+
+    // TODO: figure out and map to response schema
+
+    return chat;
+  }
+
+  private async batchExecute(rawRequest: string) {
+    const params = new URLSearchParams();
+    params.append("f.req", rawRequest);
+    params.append("at", this.session.accessToken);
+    const res = await fetch(
+      `${BASE_URL}/u/${this.session.userIndex}/_/BardChatUi/data/batchexecute`,
+      {
+        method: "POST",
+        body: params,
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded;charset=utf-8",
+        },
+      }
+    );
+
+    const rawResponse = await res.text();
+    return rawResponse;
+  }
 }
 
 function determineGoogleUserIndex() {
@@ -38,89 +149,31 @@ async function getAccessToken() {
   return accessToken;
 }
 
-export async function generateArchive() {
+async function getSession() {
   const accessToken = await getAccessToken();
-
   const userIndex = determineGoogleUserIndex();
+  const session: Session = {
+    accessToken,
+    userIndex,
+  };
+  return session;
+}
 
-  // TODO: abstract RPC logic and serialization into separate class
-  // TODO: figure out what rest of RPC args are. Reference: https://github.com/HanaokaYuzu/Gemini-API/
+export async function generateArchive() {
+  const session = await getSession();
+  const client = new GeminiClient(session);
 
-  // List all chats
-  // [resultsPerPage, null, [???, null, ???]]
-  const listChatsReqPayload = [100, null, [0, null, 1]];
-  const listChatsReqParams = new URLSearchParams();
-  listChatsReqParams.append(
-    "f.req",
-    JSON.stringify([
-      [
-        [
-          RPCId.LIST_CHATS,
-          JSON.stringify(listChatsReqPayload),
-          null,
-          "generic",
-        ],
-      ],
-    ])
-  );
-  listChatsReqParams.append("at", accessToken);
-  const listChatsRes = await fetch(
-    `${BASE_URL}/u/${userIndex}/_/BardChatUi/data/batchexecute`,
-    {
-      method: "POST",
-      body: listChatsReqParams,
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded;charset=utf-8",
-      },
-    }
-  );
-
-  const listChatsData = await listChatsRes.text();
-  const parsedListChatsData = JSON.parse(listChatsData.replace(")]}'", ""));
-  const chats = JSON.parse(parsedListChatsData[0][2])[2];
-
-  console.log(chats);
+  const listChatsRes = await client.listChats({
+    maxResultsPerPage: 100,
+  });
 
   const zip = new JSZip();
-  for (const chat of chats) {
-    const chatId = chat[0];
-
-    // Read chat content
-    // [chatId, ...???]
-    const readChatReqPayload = [chatId, 10, null, 1, [0], [4], null, 1];
-    const readChatReqParams = new URLSearchParams();
-    readChatReqParams.append(
-      "f.req",
-      JSON.stringify([
-        [
-          [
-            RPCId.READ_CHAT,
-            JSON.stringify(readChatReqPayload),
-            null,
-            "generic",
-          ],
-        ],
-      ])
-    );
-    readChatReqParams.append("at", accessToken);
-    const readChatRes = await fetch(
-      `${BASE_URL}/u/${userIndex}/_/BardChatUi/data/batchexecute`,
-      {
-        method: "POST",
-        body: readChatReqParams,
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded;charset=utf-8",
-        },
-      }
-    );
-
-    const readChatData = await readChatRes.text();
-    const parsedReadChatData = JSON.parse(readChatData.replace(")]}'", ""));
-    const chatContent = JSON.parse(parsedReadChatData[0][2])[0];
-
-    console.log(readChatData);
-
-    zip.file(`${chatId}.json`, JSON.stringify(chatContent));
+  for (const chatSummary of listChatsRes.results) {
+    const { chatId } = chatSummary;
+    const chat = await client.readChat({
+      chatId,
+    });
+    zip.file(`${chatId}.json`, JSON.stringify(chat));
   }
 
   const content = await zip.generateAsync({ type: "blob" });
