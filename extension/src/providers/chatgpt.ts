@@ -3,7 +3,6 @@ import JSZip from "jszip";
 const BASE_URL = "https://chatgpt.com";
 
 async function getSession() {
-  // TODO: do caching for session. Need to be able to recover if session is expired, changed
   const getSessionRes = await fetch(`${BASE_URL}/api/auth/session`);
   const getSessionData = await getSessionRes.json();
   return getSessionData;

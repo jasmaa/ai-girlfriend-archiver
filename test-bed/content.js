@@ -66,7 +66,6 @@ async function generateCopilotArchive() {
   const session = await getCopilotSession();
   const accessToken = session.accessCredentials.body.access_token;
 
-  // TODO: figure this out for rest of id types
   let identityType;
   const sub = session.idCredentials.decodedToken.user.sub;
   if (sub.includes("google")) {
@@ -138,9 +137,6 @@ async function generateGeminiArchive() {
   const accessToken = await getGeminiSession();
 
   const userIndex = getGoogleUserIndex();
-
-  // TODO: abstract RPC logic and serialization into separate class
-  // TODO: figure out what rest of RPC args are. Reference: https://github.com/HanaokaYuzu/Gemini-API/
 
   // List all chats
   // [resultsPerPage, null, [???, null, ???]]

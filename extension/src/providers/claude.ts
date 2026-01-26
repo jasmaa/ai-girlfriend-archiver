@@ -10,6 +10,7 @@ export async function generateArchive() {
 
   for (const organizationSummary of listOrganizationsData) {
     const organizationUUID = organizationSummary.uuid;
+    // TODO: handle pagination
     const listConversationsRes = await fetch(
       `${BASE_URL}/api/organizations/${organizationUUID}/chat_conversations?limit=30&offset=0&starred=false&consistency=strong`
     );

@@ -2,6 +2,7 @@ import JSZip from "jszip";
 
 const BASE_URL = "https://copilot.microsoft.com";
 
+// TODO: validate schemas with zod
 interface Session {
   accessCredentials: any;
   idCredentials: any;

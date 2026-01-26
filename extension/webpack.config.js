@@ -58,7 +58,7 @@ module.exports = (env) => {
         ],
       }),
       new webpack.EnvironmentPlugin({
-        // TODO: insert env vars here
+        // Insert env vars here
       }),
       new CleanWebpackPlugin(),
     ],
