@@ -3,6 +3,7 @@ const COPILOT_BASE_URL = "https://copilot.microsoft.com";
 const GEMINI_BASE_URL = "https://gemini.google.com";
 const GEMINI_LIST_CHATS_RPC_ID = "MaZiqc";
 const GEMINI_READ_CHAT_RPC_ID = "hNvQHb";
+const CLAUDE_BASE_URL = "https://claude.ai";
 
 async function getChatGPTSession() {
   const getSessionRes = await fetch(`${CHATGPT_BASE_URL}/api/auth/session`)
@@ -196,6 +197,26 @@ async function generateGeminiArchive() {
   return content;
 }
 
+async function generateClaudeArchive() {
+  const listOrganizationsRes = await fetch(`${CLAUDE_BASE_URL}/api/organizations`);
+  const listOrganizationsData = await listOrganizationsRes.json();
+  console.log(listOrganizationsData);
+
+  for (const organizationSummary of listOrganizationsData) {
+    const organizationUUID = organizationSummary.uuid;
+    const listConversationsRes = await fetch(`${CLAUDE_BASE_URL}/api/organizations/${organizationUUID}/chat_conversations?limit=30&offset=0&starred=false&consistency=strong`);
+    const listConversationsData = await listConversationsRes.json();
+    console.log(listConversationsData);
+
+    for (const conversationSummary of listConversationsData) {
+      const conversationUUID = conversationSummary.uuid;
+      const getConversationRes = await fetch(`${CLAUDE_BASE_URL}/api/organizations/${organizationUUID}/chat_conversations/${conversationUUID}?tree=True&rendering_mode=messages&render_all_tools=true&consistency=strong`)
+      const getConversationData = await getConversationRes.json();
+      console.log(getConversationData);
+    }
+  }
+}
+
 (async () => {
   console.log("Hello from archiver!");
 
@@ -204,16 +225,17 @@ async function generateGeminiArchive() {
     console.log("Found chatgpt website.");
     console.log("Archiving conversations...");
     const content = await generateChatGPTArchive();
-    saveAs(content, "example.zip");
   } else if (url.includes("copilot.microsoft.com")) {
     console.log("Found copilot website");
     console.log("Archiving conversations...");
     const content = await generateCopilotArchive();
-    saveAs(content, "example.zip");
   } else if (url.includes("gemini.google.com")) {
     console.log("Found gemini website");
     console.log("Archiving conversations...");
     const content = await generateGeminiArchive();
-    saveAs(content, "example.zip");
+  } else if (url.includes("claude.ai")) {
+    console.log("Found claude website");
+    console.log("Archiving conversations...");
+    const content = await generateClaudeArchive();
   }
 })();
