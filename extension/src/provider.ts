@@ -2,6 +2,7 @@ export enum Provider {
   CHATGPT = "CHATGPT",
   COPILOT = "COPILOT",
   GEMINI = "GEMINI",
+  CLAUDE = "CLAUDE",
 }
 
 export function determineCurrentProvider() {
@@ -12,6 +13,8 @@ export function determineCurrentProvider() {
     return Provider.COPILOT;
   } else if (url.includes("gemini.google.com")) {
     return Provider.GEMINI;
+  } else if (url.includes("claude.ai")) {
+    return Provider.CLAUDE;
   } else {
     return null;
   }

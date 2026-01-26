@@ -23,7 +23,8 @@
       "matches": [
         "*://*.chatgpt.com/*",
         "*://*.copilot.microsoft.com/*",
-        "*://*.gemini.google.com/*"
+        "*://*.gemini.google.com/*",
+        "*://*.claude.ai/*"
       ],
       "js": ["content.js"]
     }
