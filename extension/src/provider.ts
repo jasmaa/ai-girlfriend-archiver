@@ -3,6 +3,7 @@ export enum Provider {
   COPILOT = "COPILOT",
   GEMINI = "GEMINI",
   CLAUDE = "CLAUDE",
+  PERPLEXITY = "PERPLEXITY",
 }
 
 export function determineCurrentProvider() {
@@ -15,6 +16,8 @@ export function determineCurrentProvider() {
     return Provider.GEMINI;
   } else if (url.includes("claude.ai")) {
     return Provider.CLAUDE;
+  } else if (url.includes("perplexity.ai")) {
+    return Provider.PERPLEXITY;
   } else {
     return null;
   }
