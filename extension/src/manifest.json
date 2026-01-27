@@ -25,7 +25,8 @@
         "*://*.copilot.microsoft.com/*",
         "*://*.gemini.google.com/*",
         "*://*.claude.ai/*",
-        "*://*.perplexity.ai/*"
+        "*://*.perplexity.ai/*",
+        "*://*.grok.com/*"
       ],
       "js": ["content.js"]
     }

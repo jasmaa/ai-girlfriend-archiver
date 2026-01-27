@@ -4,6 +4,7 @@ import * as copilot from "../providers/copilot";
 import * as gemini from "../providers/gemini";
 import * as claude from "../providers/claude";
 import * as perplexity from "../providers/perplexity";
+import * as grok from "../providers/grok";
 import { Message } from "../messaging";
 import { determineCurrentProvider, Provider } from "../provider";
 
@@ -28,6 +29,9 @@ import { determineCurrentProvider, Provider } from "../provider";
           FileSaver.saveAs(content, "example.zip");
         } else if (provider === Provider.PERPLEXITY) {
           const content = await perplexity.generateArchive();
+          FileSaver.saveAs(content, "example.zip");
+        } else if (provider === Provider.GROK) {
+          const content = await grok.generateArchive();
           FileSaver.saveAs(content, "example.zip");
         } else {
           console.log("No supported provider found. Skipping.");
