@@ -5,6 +5,7 @@ const GEMINI_LIST_CHATS_RPC_ID = "MaZiqc";
 const GEMINI_READ_CHAT_RPC_ID = "hNvQHb";
 const CLAUDE_BASE_URL = "https://claude.ai";
 const PERPLEXITY_BASE_URL = "https://www.perplexity.ai";
+const GROK_BASE_URL = "https://grok.com";
 
 async function getChatGPTSession() {
   const getSessionRes = await fetch(`${CHATGPT_BASE_URL}/api/auth/session`)
@@ -231,6 +232,30 @@ async function generatePerplexityArchive() {
   }
 }
 
+async function generateGrokArchive() {
+  const listConversationsRes = await fetch(`${GROK_BASE_URL}/rest/app-chat/conversations?pageSize=100`);
+  const listConversationsData = await listConversationsRes.json();
+  console.log(listConversationsData);
+
+  for (const conversationSummary of listConversationsData.conversations) {
+    const conversationId = conversationSummary.conversationId;
+
+    const listResponseNodesRes = await fetch(`${GROK_BASE_URL}/rest/app-chat/conversations/${conversationId}/response-node?includeThreads=true`);
+    const listResponseNodesData = await listResponseNodesRes.json();
+    console.log(listResponseNodesData);
+
+    const responseIds = listResponseNodesData.responseNodes.map((responseNode) => responseNode.responseId);
+
+    const loadResponsesRes = await fetch(`${GROK_BASE_URL}/rest/app-chat/conversations/${conversationId}/load-responses`, {
+      method: "POST",
+      body: JSON.stringify({
+        responseIds
+      }),
+    });
+    const loadResponsesData = await loadResponsesRes.json();
+    console.log(loadResponsesData);
+  }
+}
 
 (async () => {
   console.log("Hello from archiver!");
@@ -256,5 +281,9 @@ async function generatePerplexityArchive() {
     console.log("Found perplexity website");
     console.log("Archiving conversations...");
     const content = await generatePerplexityArchive();
+  } else if (url.includes("grok.com")) {
+    console.log("Found grok website");
+    console.log("Archiving conversations...");
+    const content = await generateGrokArchive();
   }
 })();
