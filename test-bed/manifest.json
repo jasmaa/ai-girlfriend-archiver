@@ -19,7 +19,8 @@
         "*://*.chatgpt.com/*",
         "*://*.copilot.microsoft.com/*",
         "*://*.gemini.google.com/*",
-        "*://*.claude.ai/*"
+        "*://*.claude.ai/*",
+        "*://*.perplexity.ai/*"
       ],
       "js": [
         "content.js",

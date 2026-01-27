@@ -9,7 +9,7 @@ https://firstpagesage.com/reports/top-generative-ai-chatbots/
 - ChatGPT: poc
 - Gemini: poc
 - Copilot: poc
-- Perplexity: TODO
+- Perplexity: poc
 - Claude: poc
 - Grok: TODO
 - Deepseek: TODO

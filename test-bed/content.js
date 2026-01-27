@@ -4,6 +4,7 @@ const GEMINI_BASE_URL = "https://gemini.google.com";
 const GEMINI_LIST_CHATS_RPC_ID = "MaZiqc";
 const GEMINI_READ_CHAT_RPC_ID = "hNvQHb";
 const CLAUDE_BASE_URL = "https://claude.ai";
+const PERPLEXITY_BASE_URL = "https://www.perplexity.ai";
 
 async function getChatGPTSession() {
   const getSessionRes = await fetch(`${CHATGPT_BASE_URL}/api/auth/session`)
@@ -213,6 +214,24 @@ async function generateClaudeArchive() {
   }
 }
 
+async function generatePerplexityArchive() {
+  const listThreadsRes = await fetch(`${PERPLEXITY_BASE_URL}/rest/thread/list_ask_threads?version=2.18&source=default`, {
+    method: "POST",
+  });
+  const listThreadsData = await listThreadsRes.json();
+  console.log(listThreadsData);
+
+  for (const threadSummary of listThreadsData) {
+    const threadSlug = threadSummary.slug;
+
+    const getThreadRes = await fetch(`${PERPLEXITY_BASE_URL}/rest/thread/${threadSlug}`);
+    const getThreadData = await getThreadRes.json();
+
+    console.log(getThreadData);
+  }
+}
+
+
 (async () => {
   console.log("Hello from archiver!");
 
@@ -233,5 +252,9 @@ async function generateClaudeArchive() {
     console.log("Found claude website");
     console.log("Archiving conversations...");
     const content = await generateClaudeArchive();
+  } else if (url.includes("perplexity.ai")) {
+    console.log("Found perplexity website");
+    console.log("Archiving conversations...");
+    const content = await generatePerplexityArchive();
   }
 })();
