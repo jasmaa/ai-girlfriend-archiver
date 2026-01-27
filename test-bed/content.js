@@ -6,6 +6,7 @@ const GEMINI_READ_CHAT_RPC_ID = "hNvQHb";
 const CLAUDE_BASE_URL = "https://claude.ai";
 const PERPLEXITY_BASE_URL = "https://www.perplexity.ai";
 const GROK_BASE_URL = "https://grok.com";
+const DEEPSEEK_BASE_URL = "https://chat.deepseek.com";
 
 async function getChatGPTSession() {
   const getSessionRes = await fetch(`${CHATGPT_BASE_URL}/api/auth/session`)
@@ -257,6 +258,40 @@ async function generateGrokArchive() {
   }
 }
 
+function getDeepseekSession() {
+  if (!localStorage.getItem("userToken")) {
+    throw new Error("no session found!")
+  }
+  const session = JSON.parse(localStorage.getItem("userToken"));
+  return session;
+}
+
+async function generateDeepseekArchive() {
+  const session = getDeepseekSession();
+  const accessToken = session.value;
+
+  const getPageRes = await fetch(`${DEEPSEEK_BASE_URL}/api/v0/chat_session/fetch_page`, {
+    headers: {
+      "authorization": `Bearer ${accessToken}`,
+    }
+  });
+  const getPageData = await getPageRes.json();
+  console.log(getPageData);
+
+  const chatSessions = getPageData.data.biz_data.chat_sessions
+  for (const chatSessionSummary of chatSessions) {
+    const chatSessionId = chatSessionSummary.id;
+
+    const getHistoryMessagesRes = await fetch(`${DEEPSEEK_BASE_URL}/api/v0/chat/history_messages?chat_session_id=${chatSessionId}`, {
+      headers: {
+        "authorization": `Bearer ${accessToken}`,
+      }
+    });
+    const getHistoryMessagesData = await getHistoryMessagesRes.json();
+    console.log(getHistoryMessagesData);
+  }
+}
+
 (async () => {
   console.log("Hello from archiver!");
 
@@ -285,5 +320,9 @@ async function generateGrokArchive() {
     console.log("Found grok website");
     console.log("Archiving conversations...");
     const content = await generateGrokArchive();
+  } else if (url.includes("chat.deepseek.com")) {
+    console.log("Found deepseek website");
+    console.log("Archiving conversations...");
+    const content = await generateDeepseekArchive();
   }
 })();

@@ -11,5 +11,5 @@ https://firstpagesage.com/reports/top-generative-ai-chatbots/
 - Copilot: poc
 - Perplexity: poc
 - Claude: poc
-- Grok: TODO
-- Deepseek: TODO
+- Grok: poc
+- Deepseek: poc
