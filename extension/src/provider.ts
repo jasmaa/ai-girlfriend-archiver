@@ -5,6 +5,7 @@ export enum Provider {
   CLAUDE = "CLAUDE",
   PERPLEXITY = "PERPLEXITY",
   GROK = "GROK",
+  DEEPSEEK = "DEEPSEEK",
 }
 
 export function determineCurrentProvider() {
@@ -21,6 +22,8 @@ export function determineCurrentProvider() {
     return Provider.PERPLEXITY;
   } else if (url.includes("grok.com")) {
     return Provider.GROK;
+  } else if (url.includes("chat.deepseek.com")) {
+    return Provider.DEEPSEEK;
   } else {
     return null;
   }

@@ -26,7 +26,8 @@
         "*://*.gemini.google.com/*",
         "*://*.claude.ai/*",
         "*://*.perplexity.ai/*",
-        "*://*.grok.com/*"
+        "*://*.grok.com/*",
+        "*://*.chat.deepseek.com/*"
       ],
       "js": ["content.js"]
     }
