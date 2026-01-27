@@ -1,36 +1,30 @@
 import JSZip from "jszip";
+import * as z from "zod";
 
-interface Session {
-  value: string;
-  __version: string;
-}
+const Session = z.object({
+  value: z.string(),
+});
 
-interface FetchPageResponse {
-  data: {
-    biz_data: {
-      chat_sessions: {
-        id: string;
-      }[];
-      has_more: boolean;
-    };
-  };
-}
-
-interface GetHistoryMessagesResponse {
-  data: {
-    biz_data: {
-      chat_messages: any[];
-    };
-  };
-}
+const FetchPageResponse = z.object({
+  data: z.object({
+    biz_data: z.object({
+      chat_sessions: z.array(
+        z.object({
+          id: z.string(),
+        })
+      ),
+      has_more: z.boolean(),
+    }),
+  }),
+});
 
 const BASE_URL = "https://chat.deepseek.com";
 
-function getSession(): Session {
+function getSession() {
   if (!localStorage.getItem("userToken")) {
     throw new Error("no session found!");
   }
-  const session = JSON.parse(localStorage.getItem("userToken")) as Session;
+  const session = Session.parse(JSON.parse(localStorage.getItem("userToken")));
   return session;
 }
 
@@ -49,7 +43,7 @@ export async function generateArchive() {
       },
     }
   );
-  const fetchPageData = (await fetchPageRes.json()) as FetchPageResponse;
+  const fetchPageData = FetchPageResponse.parse(await fetchPageRes.json());
 
   const chatSessions = fetchPageData.data.biz_data.chat_sessions;
   for (const chatSessionSummary of chatSessions) {
@@ -63,13 +57,9 @@ export async function generateArchive() {
         },
       }
     );
-    const getHistoryMessagesData =
-      (await getHistoryMessagesRes.json()) as GetHistoryMessagesResponse;
+    const getHistoryMessagesData = await getHistoryMessagesRes.json();
 
-    zip.file(
-      `${chatSessionId}.json`,
-      JSON.stringify(getHistoryMessagesData.data.biz_data.chat_messages)
-    );
+    zip.file(`${chatSessionId}.json`, JSON.stringify(getHistoryMessagesData));
   }
 
   const content = await zip.generateAsync({ type: "blob" });

@@ -1,15 +1,24 @@
 import JSZip from "jszip";
+import * as z from "zod";
 
 const BASE_URL = "https://grok.com";
 
-interface ListResponseNodesResponse {
-  responseNodes: ResponseNode[];
-}
+const ListConversationsResponse = z.object({
+  conversations: z.array(
+    z.object({
+      conversationId: z.string(),
+      nextPageToken: z.union([z.string(), z.undefined()]),
+    })
+  ),
+});
 
-interface ResponseNode {
-  responseId: string;
-  sender: string;
-}
+const ResponseNode = z.object({
+  responseId: z.string(),
+});
+
+const ListResponseNodesResponse = z.object({
+  responseNodes: z.array(ResponseNode),
+});
 
 export async function generateArchive() {
   const zip = new JSZip();
@@ -18,7 +27,9 @@ export async function generateArchive() {
   const listConversationsRes = await fetch(
     `${BASE_URL}/rest/app-chat/conversations?pageSize=100`
   );
-  const listConversationsData = await listConversationsRes.json();
+  const listConversationsData = ListConversationsResponse.parse(
+    await listConversationsRes.json()
+  );
 
   for (const conversationSummary of listConversationsData.conversations) {
     const conversationId = conversationSummary.conversationId;
@@ -26,8 +37,9 @@ export async function generateArchive() {
     const listResponseNodesRes = await fetch(
       `${BASE_URL}/rest/app-chat/conversations/${conversationId}/response-node?includeThreads=true`
     );
-    const listResponseNodesData =
-      (await listResponseNodesRes.json()) as ListResponseNodesResponse;
+    const listResponseNodesData = ListResponseNodesResponse.parse(
+      await listResponseNodesRes.json()
+    );
 
     const responseIds = listResponseNodesData.responseNodes.map(
       (responseNode) => responseNode.responseId

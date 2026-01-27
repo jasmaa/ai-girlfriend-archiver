@@ -1,24 +1,40 @@
 import JSZip from "jszip";
+import * as z from "zod";
 
 const BASE_URL = "https://copilot.microsoft.com";
 
-// TODO: validate schemas with zod
+const AccessCredentials = z.object({
+  body: z.object({
+    access_token: z.string(),
+  }),
+});
+
+const IdCredentials = z.object({
+  decodedToken: z.object({
+    user: z.object({
+      sub: z.string(),
+    }),
+  }),
+});
+
 interface Session {
-  accessCredentials: any;
-  idCredentials: any;
+  accessCredentials: z.infer<typeof AccessCredentials>;
+  idCredentials: z.infer<typeof IdCredentials>;
 }
 
-interface ListConversationsResponse {
-  results: {
-    id: string;
-  }[];
-  next: string | null;
-}
+const ListConversationsResponse = z.object({
+  results: z.array(
+    z.object({
+      id: z.string(),
+    })
+  ),
+  next: z.union([z.string(), z.null()]),
+});
 
-interface ListConversationHistoryResponse {
-  results: any[];
-  next: string | null;
-}
+const ListConversationHistoryResponse = z.object({
+  results: z.array(z.any()),
+  next: z.union([z.string(), z.null()]),
+});
 
 enum IdentityType {
   GOOGLE = "google",
@@ -36,10 +52,12 @@ async function getCopilotSession() {
     if (
       key.match(/@@auth0spajs@@::(.+)::https:\/\/copilot\.microsoft\.com::(.+)/)
     ) {
-      const item = JSON.parse(localStorage.getItem(key));
+      const item = AccessCredentials.parse(
+        JSON.parse(localStorage.getItem(key))
+      );
       accessCredentials = item;
     } else if (key.match(/@@auth0spajs@@::(.+)::@@user@@/)) {
-      const item = JSON.parse(localStorage.getItem(key));
+      const item = IdCredentials.parse(JSON.parse(localStorage.getItem(key)));
       idCredentials = item;
     }
   }
@@ -77,8 +95,9 @@ export async function generateArchive() {
       },
     }
   );
-  const listConversationsData: ListConversationsResponse =
-    await listConversationsRes.json();
+  const listConversationsData = ListConversationsResponse.parse(
+    await listConversationsRes.json()
+  );
 
   const zip = new JSZip();
   for (const conversation of listConversationsData.results) {
@@ -93,11 +112,17 @@ export async function generateArchive() {
         },
       }
     );
-    const listConversationHistoryData: ListConversationHistoryResponse =
+    const rawListConversationHistoryData =
       await getConversationHistoryRes.json();
+
+    // TODO: handle pagination
+    const listConversationHistoryData = ListConversationHistoryResponse.parse(
+      rawListConversationHistoryData
+    );
+
     zip.file(
       `${conversationId}.json`,
-      JSON.stringify(listConversationHistoryData.results)
+      JSON.stringify(rawListConversationHistoryData)
     );
   }
 
