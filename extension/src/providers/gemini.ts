@@ -24,6 +24,7 @@ interface ListChatsResponse {
 
 interface ReadChatRequest {
   chatId: string;
+  nextToken?: string;
 }
 
 interface ReadChatResponse {
@@ -34,6 +35,7 @@ interface ReadChatResponse {
     assistantMessageId: string;
     assistantMessage: string;
   }[];
+  nextToken: string;
 }
 
 // TODO: figure out what rest of RPC args are. Reference: https://github.com/HanaokaYuzu/Gemini-API/
@@ -81,12 +83,21 @@ class GeminiClient {
   async readChat(req: ReadChatRequest): Promise<ReadChatResponse> {
     // Serialize
     // Read chat content
-    // [chatId, ...???]
+    // [chatId, ???, nextToken, ...???]
     const rawRequest = JSON.stringify([
       [
         [
           RPCId.READ_CHAT,
-          JSON.stringify([req.chatId, 10, null, 1, [0], [4], null, 1]),
+          JSON.stringify([
+            req.chatId,
+            10,
+            req.nextToken ? req.nextToken : null,
+            1,
+            [0],
+            [4],
+            null,
+            1,
+          ]),
           null,
           "generic",
         ],
@@ -112,11 +123,9 @@ class GeminiClient {
         assistantMessage: message[3][0][0][1][0],
       });
     }
+    const nextToken: string = parsedResponse[1];
 
-    // Reverse to put in chronological order
-    results.reverse();
-
-    return { results };
+    return { results, nextToken };
   }
 
   private async batchExecute(rawRequest: string) {
@@ -191,10 +200,24 @@ export async function generateArchive() {
   const zip = new JSZip();
   for (const chatSummary of listChatsRes.results) {
     const { chatId } = chatSummary;
-    const readChatRes = await client.readChat({
-      chatId,
-    });
-    zip.file(`${chatId}.json`, JSON.stringify(readChatRes.results));
+
+    const results = [];
+    let nextToken = undefined;
+    do {
+      const readChatRes = await client.readChat({
+        chatId,
+        nextToken,
+      });
+      for (const result of readChatRes.results) {
+        results.push(result);
+      }
+      nextToken = readChatRes.nextToken;
+    } while (nextToken);
+
+    // Reverse to put in chronological order
+    results.reverse();
+
+    zip.file(`${chatId}.json`, JSON.stringify(results));
   }
 
   const content = await zip.generateAsync({ type: "blob" });
