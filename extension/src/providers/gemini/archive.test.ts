@@ -1,4 +1,4 @@
-import { generateArchiveFiles } from "./archive";
+import { generateArchiveFiles } from "./scraper";
 import { GeminiClient } from "./gemini-client";
 import * as auth from "./auth";
 

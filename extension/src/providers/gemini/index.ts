@@ -1,3 +1,3 @@
-import { generateArchiveFiles } from "./archive";
+import { generateArchiveFiles } from "./scraper";
 
 export { generateArchiveFiles };
