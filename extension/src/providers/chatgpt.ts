@@ -1,5 +1,5 @@
-import JSZip from "jszip";
 import * as z from "zod";
+import { ArchiveFile } from "../archive";
 
 const Session = z.object({
   accessToken: z.string(),
@@ -21,7 +21,7 @@ async function getSession() {
   return getSessionData;
 }
 
-export async function generateArchive() {
+export async function generateArchiveFiles(): Promise<ArchiveFile[]> {
   const session = await getSession();
   const accessToken = session.accessToken;
 
@@ -51,7 +51,7 @@ export async function generateArchive() {
     currentOffset += listConversationsData.items.length;
   }
 
-  const zip = new JSZip();
+  const archiveFiles = [];
   for (const conversationSummary of conversationSummaries) {
     const conversationId = conversationSummary.id;
     const getConversationRes = await fetch(
@@ -63,9 +63,11 @@ export async function generateArchive() {
       }
     );
     const getConversationData = await getConversationRes.json();
-    zip.file(`${conversationId}.json`, JSON.stringify(getConversationData));
+    archiveFiles.push({
+      fileSlug: conversationId,
+      data: getConversationData,
+    });
   }
 
-  const content = await zip.generateAsync({ type: "blob" });
-  return content;
+  return archiveFiles;
 }

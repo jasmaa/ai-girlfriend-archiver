@@ -8,6 +8,7 @@ import * as grok from "../providers/grok";
 import * as deepseek from "../providers/deepseek";
 import { Message } from "../messaging";
 import { determineCurrentProvider, Provider } from "../provider";
+import { generateArchive } from "../archive";
 
 (async () => {
   console.log("Started archiver content!");
@@ -17,16 +18,19 @@ import { determineCurrentProvider, Provider } from "../provider";
       (async () => {
         const provider = determineCurrentProvider();
         if (provider === Provider.CHATGPT) {
-          const content = await chatgpt.generateArchive();
+          const archiveFiles = await chatgpt.generateArchiveFiles();
+          const content = await generateArchive(archiveFiles);
           FileSaver.saveAs(content, "example.zip");
         } else if (provider === Provider.COPILOT) {
-          const content = await copilot.generateArchive();
+          const archiveFiles = await copilot.generateArchiveFiles();
+          const content = await generateArchive(archiveFiles);
           FileSaver.saveAs(content, "example.zip");
         } else if (provider === Provider.GEMINI) {
           const content = await gemini.generateArchive();
           FileSaver.saveAs(content, "example.zip");
         } else if (provider === Provider.CLAUDE) {
-          const content = await claude.generateArchive();
+          const archiveFiles = await claude.generateArchiveFiles();
+          const content = await generateArchive(archiveFiles);
           FileSaver.saveAs(content, "example.zip");
         } else if (provider === Provider.PERPLEXITY) {
           const content = await perplexity.generateArchive();
@@ -35,7 +39,8 @@ import { determineCurrentProvider, Provider } from "../provider";
           const content = await grok.generateArchive();
           FileSaver.saveAs(content, "example.zip");
         } else if (provider === Provider.DEEPSEEK) {
-          const content = await deepseek.generateArchive();
+          const archiveFiles = await deepseek.generateArchiveFiles();
+          const content = await generateArchive(archiveFiles);
           FileSaver.saveAs(content, "example.zip");
         } else {
           console.log("No supported provider found. Skipping.");

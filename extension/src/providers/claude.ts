@@ -1,5 +1,5 @@
-import JSZip from "jszip";
 import * as z from "zod";
+import { ArchiveFile } from "../archive";
 
 const ListOrganizationsResponse = z.array(
   z.object({
@@ -15,8 +15,8 @@ const ListConversationsResponse = z.array(
 
 const BASE_URL = "https://claude.ai";
 
-export async function generateArchive() {
-  const zip = new JSZip();
+export async function generateArchiveFiles(): Promise<ArchiveFile[]> {
+  const archiveFiles = [];
 
   const listOrganizationsRes = await fetch(`${BASE_URL}/api/organizations`);
   const listOrganizationsData = ListOrganizationsResponse.parse(
@@ -39,10 +39,12 @@ export async function generateArchive() {
         `${BASE_URL}/api/organizations/${organizationUUID}/chat_conversations/${conversationUUID}?tree=True&rendering_mode=messages&render_all_tools=true&consistency=strong`
       );
       const getConversationData = await getConversationRes.json();
-      zip.file(`${conversationUUID}.json`, JSON.stringify(getConversationData));
+      archiveFiles.push({
+        fileSlug: conversationUUID,
+        data: getConversationData,
+      });
     }
   }
 
-  const content = await zip.generateAsync({ type: "blob" });
-  return content;
+  return archiveFiles;
 }

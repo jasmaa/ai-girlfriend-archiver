@@ -1,5 +1,5 @@
-import JSZip from "jszip";
 import * as z from "zod";
+import { ArchiveFile } from "../archive";
 
 const BASE_URL = "https://copilot.microsoft.com";
 
@@ -80,7 +80,9 @@ function determineIdentityType(session: Session) {
   }
 }
 
-export async function generateArchive() {
+export async function generateArchiveFiles(): Promise<ArchiveFile[]> {
+  const archiveFiles = [];
+
   const session = await getCopilotSession();
   const accessToken = session.accessCredentials.body.access_token;
   const identityType = determineIdentityType(session);
@@ -99,7 +101,6 @@ export async function generateArchive() {
     await listConversationsRes.json()
   );
 
-  const zip = new JSZip();
   for (const conversation of listConversationsData.results) {
     // TODO: handle pagination
     const conversationId = conversation.id;
@@ -120,12 +121,11 @@ export async function generateArchive() {
       rawListConversationHistoryData
     );
 
-    zip.file(
-      `${conversationId}.json`,
-      JSON.stringify(rawListConversationHistoryData)
-    );
+    archiveFiles.push({
+      fileSlug: conversationId,
+      data: rawListConversationHistoryData,
+    });
   }
 
-  const content = await zip.generateAsync({ type: "blob" });
-  return content;
+  return archiveFiles;
 }
