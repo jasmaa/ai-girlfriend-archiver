@@ -7,9 +7,9 @@ const ListConversationsResponse = z.object({
   conversations: z.array(
     z.object({
       conversationId: z.string(),
-      nextPageToken: z.union([z.string(), z.undefined()]),
     })
   ),
+  nextPageToken: z.union([z.string(), z.undefined()]),
 });
 
 const ResponseNode = z.object({
@@ -23,15 +23,28 @@ const ListResponseNodesResponse = z.object({
 export async function generateArchive() {
   const zip = new JSZip();
 
-  // TODO: handle pagination. Get nextPageToken from response and use as pageToken.
-  const listConversationsRes = await fetch(
-    `${BASE_URL}/rest/app-chat/conversations?pageSize=100`
-  );
-  const listConversationsData = ListConversationsResponse.parse(
-    await listConversationsRes.json()
-  );
+  let pageToken = undefined;
+  const conversationSummaries = [];
+  do {
+    const url = new URL("/rest/app-chat/conversations", BASE_URL);
+    url.searchParams.append("pageSize", "100");
+    if (pageToken) {
+      url.searchParams.append("pageToken", pageToken);
+    }
 
-  for (const conversationSummary of listConversationsData.conversations) {
+    const listConversationsRes = await fetch(url);
+    const listConversationsData = ListConversationsResponse.parse(
+      await listConversationsRes.json()
+    );
+
+    for (const conversationSummary of listConversationsData.conversations) {
+      conversationSummaries.push(conversationSummary);
+    }
+
+    pageToken = listConversationsData.nextPageToken;
+  } while (pageToken);
+
+  for (const conversationSummary of conversationSummaries) {
     const conversationId = conversationSummary.conversationId;
 
     const listResponseNodesRes = await fetch(
