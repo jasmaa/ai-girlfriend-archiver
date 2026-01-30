@@ -1,45 +1,16 @@
-import JSZip from "jszip";
+import {
+  ListChatsRequest,
+  ListChatsResponse,
+  ReadChatRequest,
+  ReadChatResponse,
+  RPCId,
+  Session,
+} from "./models";
 
 const BASE_URL = "https://gemini.google.com";
 
-interface Session {
-  accessToken: string;
-  userIndex: number;
-}
-
-enum RPCId {
-  LIST_CHATS = "MaZiqc",
-  READ_CHAT = "hNvQHb",
-}
-
-interface ListChatsRequest {
-  maxResultsPerPage: number;
-}
-
-interface ListChatsResponse {
-  results: {
-    chatId: string;
-  }[];
-}
-
-interface ReadChatRequest {
-  chatId: string;
-  nextToken?: string;
-}
-
-interface ReadChatResponse {
-  results: {
-    chatId: string;
-    userMessageId: string;
-    userMessage: string;
-    assistantMessageId: string;
-    assistantMessage: string;
-  }[];
-  nextToken: string;
-}
-
 // TODO: figure out what rest of RPC args are. Reference: https://github.com/HanaokaYuzu/Gemini-API/
-class GeminiClient {
+export class GeminiClient {
   private session: Session;
 
   constructor(session: Session) {
@@ -146,80 +117,4 @@ class GeminiClient {
     const rawResponse = await res.text();
     return rawResponse;
   }
-}
-
-function determineGoogleUserIndex() {
-  const userIndexRe = /u\/(\d+)/;
-  const parts = userIndexRe.exec(window.location.href);
-  if (!parts && parts.length < 1) {
-    // Default 0th user
-    return 0;
-  } else {
-    return parseInt(parts[1]);
-  }
-}
-
-async function getAccessToken() {
-  const scriptEls = document.querySelectorAll('[data-id="_gd"]');
-
-  if (scriptEls.length < 1) {
-    throw new Error("unable to find access token");
-  }
-
-  const scriptText = scriptEls[0].textContent;
-  const accessTokenRe = /"SNlM0e":"(.*?)"/;
-  const parts = accessTokenRe.exec(scriptText);
-
-  if (!parts || parts.length < 1) {
-    throw new Error("unable to find access token");
-  }
-
-  const accessToken = parts[1];
-
-  return accessToken;
-}
-
-async function getSession() {
-  const accessToken = await getAccessToken();
-  const userIndex = determineGoogleUserIndex();
-  const session: Session = {
-    accessToken,
-    userIndex,
-  };
-  return session;
-}
-
-export async function generateArchive() {
-  const session = await getSession();
-  const client = new GeminiClient(session);
-
-  const listChatsRes = await client.listChats({
-    maxResultsPerPage: 100,
-  });
-
-  const zip = new JSZip();
-  for (const chatSummary of listChatsRes.results) {
-    const { chatId } = chatSummary;
-
-    const results = [];
-    let nextToken = undefined;
-    do {
-      const readChatRes = await client.readChat({
-        chatId,
-        nextToken,
-      });
-      for (const result of readChatRes.results) {
-        results.push(result);
-      }
-      nextToken = readChatRes.nextToken;
-    } while (nextToken);
-
-    // Reverse to put in chronological order
-    results.reverse();
-
-    zip.file(`${chatId}.json`, JSON.stringify(results));
-  }
-
-  const content = await zip.generateAsync({ type: "blob" });
-  return content;
 }

@@ -26,7 +26,8 @@ import { generateArchive } from "../archive";
           const content = await generateArchive(archiveFiles);
           FileSaver.saveAs(content, "example.zip");
         } else if (provider === Provider.GEMINI) {
-          const content = await gemini.generateArchive();
+          const archiveFiles = await gemini.generateArchiveFiles();
+          const content = await generateArchive(archiveFiles);
           FileSaver.saveAs(content, "example.zip");
         } else if (provider === Provider.CLAUDE) {
           const archiveFiles = await claude.generateArchiveFiles();
