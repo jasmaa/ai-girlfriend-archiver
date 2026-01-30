@@ -1,5 +1,5 @@
-import JSZip from "jszip";
 import * as z from "zod";
+import { ArchiveFile } from "../archive";
 
 const BASE_URL = "https://www.perplexity.ai";
 
@@ -15,8 +15,8 @@ const GetThreadResponse = z.object({
   next_cursor: z.null(),
 });
 
-export async function generateArchive() {
-  const zip = new JSZip();
+export async function generateArchiveFiles(): Promise<ArchiveFile[]> {
+  const archiveFiles = [];
 
   // TODO: handle pagination
   const listThreadsRes = await fetch(
@@ -46,9 +46,11 @@ export async function generateArchive() {
     // TODO: handle pagination
     const getThreadData = GetThreadResponse.parse(rawGetThreadData);
 
-    zip.file(`${threadSlug}.json`, JSON.stringify(rawGetThreadData));
+    archiveFiles.push({
+      fileSlug: threadSlug,
+      data: rawGetThreadData,
+    });
   }
 
-  const content = await zip.generateAsync({ type: "blob" });
-  return content;
+  return archiveFiles;
 }

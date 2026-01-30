@@ -34,10 +34,12 @@ import { generateArchive } from "../archive";
           const content = await generateArchive(archiveFiles);
           FileSaver.saveAs(content, "example.zip");
         } else if (provider === Provider.PERPLEXITY) {
-          const content = await perplexity.generateArchive();
+          const archiveFiles = await perplexity.generateArchiveFiles();
+          const content = await generateArchive(archiveFiles);
           FileSaver.saveAs(content, "example.zip");
         } else if (provider === Provider.GROK) {
-          const content = await grok.generateArchiveFiles();
+          const archiveFiles = await grok.generateArchiveFiles();
+          const content = await generateArchive(archiveFiles);
           FileSaver.saveAs(content, "example.zip");
         } else if (provider === Provider.DEEPSEEK) {
           const archiveFiles = await deepseek.generateArchiveFiles();

@@ -1,4 +1,3 @@
-import JSZip from "jszip";
 import * as z from "zod";
 import { ArchiveFile } from "../archive";
 
