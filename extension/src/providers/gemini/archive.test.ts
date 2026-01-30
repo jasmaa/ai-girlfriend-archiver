@@ -35,26 +35,44 @@ describe("test Gemini generateArchiveFiles", () => {
               {
                 chatId: "convo1",
                 userMessageId: "message1",
-                userMessage: "",
+                userMessage: "Hello!",
                 assistantMessageId: "message2",
-                assistantMessage: "",
+                assistantMessage:
+                  "Hello, or perhaps not. For we had already greeted each other when our eyes met, before a single word was spoke.",
               },
             ],
-            nextToken: "",
+            nextToken: null,
           };
         } else if (req.chatId === "convo2") {
-          return {
-            results: [
-              {
-                chatId: "convo2",
-                userMessageId: "message1",
-                userMessage: "",
-                assistantMessageId: "message2",
-                assistantMessage: "",
-              },
-            ],
-            nextToken: "",
-          };
+          if (req.nextToken === "token1") {
+            return {
+              results: [
+                {
+                  chatId: "convo2",
+                  userMessageId: "message1",
+                  userMessage: "And how does it feel to go backwards?",
+                  assistantMessageId: "message2",
+                  assistantMessage:
+                    "Like flipping an hourglass on its head and watching the sands of time flow down.",
+                },
+              ],
+              nextToken: null,
+            };
+          } else {
+            return {
+              results: [
+                {
+                  chatId: "convo2",
+                  userMessageId: "message3",
+                  userMessage: "Interesting. What's it like going forwards?",
+                  assistantMessageId: "message4",
+                  assistantMessage:
+                    "Like flipping an hourglass on its end and watching the sands of time flow down.",
+                },
+              ],
+              nextToken: "token1",
+            };
+          }
         }
       });
 

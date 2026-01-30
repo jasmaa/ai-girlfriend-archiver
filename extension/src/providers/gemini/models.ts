@@ -31,5 +31,5 @@ export interface ReadChatResponse {
     assistantMessageId: string;
     assistantMessage: string;
   }[];
-  nextToken: string;
+  nextToken: string | null;
 }
