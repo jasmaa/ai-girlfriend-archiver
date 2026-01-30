@@ -25,21 +25,35 @@ export async function generateArchive() {
   const session = await getSession();
   const accessToken = session.accessToken;
 
-  const listConversationsRes = await fetch(
-    `${BASE_URL}/backend-api/conversations`,
-    {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
+  const conversationSummaries = [];
+  let currentOffset = 0;
+  while (true) {
+    const listConversationsRes = await fetch(
+      `${BASE_URL}/backend-api/conversations?offset=${currentOffset}&limit=50`,
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
+    );
+    const listConversationsData = ListConversationsResponse.parse(
+      await listConversationsRes.json()
+    );
+
+    if (listConversationsData.items.length === 0) {
+      break;
     }
-  );
-  const listConversationsData = ListConversationsResponse.parse(
-    await listConversationsRes.json()
-  );
+
+    for (const conversationSummary of listConversationsData.items) {
+      conversationSummaries.push(conversationSummary);
+    }
+
+    currentOffset += listConversationsData.items.length;
+  }
 
   const zip = new JSZip();
-  for (const conversation of listConversationsData.items) {
-    const conversationId = conversation.id;
+  for (const conversationSummary of conversationSummaries) {
+    const conversationId = conversationSummary.id;
     const getConversationRes = await fetch(
       `${BASE_URL}/backend-api/conversation/${conversationId}`,
       {
