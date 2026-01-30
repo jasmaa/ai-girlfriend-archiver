@@ -37,7 +37,7 @@ import { generateArchive } from "../archive";
           const content = await perplexity.generateArchive();
           FileSaver.saveAs(content, "example.zip");
         } else if (provider === Provider.GROK) {
-          const content = await grok.generateArchive();
+          const content = await grok.generateArchiveFiles();
           FileSaver.saveAs(content, "example.zip");
         } else if (provider === Provider.DEEPSEEK) {
           const archiveFiles = await deepseek.generateArchiveFiles();

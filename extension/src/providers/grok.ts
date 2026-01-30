@@ -1,5 +1,6 @@
 import JSZip from "jszip";
 import * as z from "zod";
+import { ArchiveFile } from "../archive";
 
 const BASE_URL = "https://grok.com";
 
@@ -20,8 +21,8 @@ const ListResponseNodesResponse = z.object({
   responseNodes: z.array(ResponseNode),
 });
 
-export async function generateArchive() {
-  const zip = new JSZip();
+export async function generateArchiveFiles(): Promise<ArchiveFile[]> {
+  const archiveFiles = [];
 
   let pageToken = undefined;
   const conversationSummaries = [];
@@ -32,7 +33,7 @@ export async function generateArchive() {
       url.searchParams.append("pageToken", pageToken);
     }
 
-    const listConversationsRes = await fetch(url);
+    const listConversationsRes = await fetch(url.toString());
     const listConversationsData = ListConversationsResponse.parse(
       await listConversationsRes.json()
     );
@@ -69,9 +70,11 @@ export async function generateArchive() {
     );
     const loadResponsesData = await loadResponsesRes.json();
 
-    zip.file(`${conversationId}.json`, JSON.stringify(loadResponsesData));
+    archiveFiles.push({
+      fileSlug: conversationId,
+      data: loadResponsesData,
+    });
   }
 
-  const content = await zip.generateAsync({ type: "blob" });
-  return content;
+  return archiveFiles;
 }
