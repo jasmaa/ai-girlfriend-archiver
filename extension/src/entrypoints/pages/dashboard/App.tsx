@@ -1,20 +1,20 @@
 import React, { useEffect, useState } from "react";
 import { getAllProviders, Provider } from "../../../provider";
 import {
-  AutoArchiveConfig,
-  AutoArchiveConfigEntry,
-  loadConfig,
-  saveConfig,
+  BulkArchiveConfig,
+  BulkArchiveConfigEntry,
+  loadBulkArchiveConfig,
+  saveBulkArchiveConfig,
 } from "../../../configuration";
 
 export default function App() {
-  const [entries, setEntries] = useState<AutoArchiveConfigEntry[]>([]);
+  const [entries, setEntries] = useState<BulkArchiveConfigEntry[]>([]);
   const [isSaving, setIsSaving] = useState(false);
   const [newProvider, setNewProvider] = useState(Provider.CHATGPT);
 
   useEffect(() => {
     (async () => {
-      const config = await loadConfig();
+      const config = await loadBulkArchiveConfig();
       setEntries([...config.entries]);
     })();
   }, []);
@@ -85,7 +85,7 @@ export default function App() {
                   <button
                     className="btn btn-success"
                     onClick={() => {
-                      const newEntry: AutoArchiveConfigEntry = {
+                      const newEntry: BulkArchiveConfigEntry = {
                         provider: newProvider,
                       };
                       const updatedEntries = [...entries, newEntry];
@@ -106,10 +106,10 @@ export default function App() {
             disabled={isSaving}
             onClick={async () => {
               setIsSaving(true);
-              const updatedConfig: AutoArchiveConfig = {
+              const updatedConfig: BulkArchiveConfig = {
                 entries,
               };
-              await saveConfig(updatedConfig);
+              await saveBulkArchiveConfig(updatedConfig);
               await new Promise((resolve) => setTimeout(resolve, 500)); // Fake a bit of loading
               setIsSaving(false);
             }}

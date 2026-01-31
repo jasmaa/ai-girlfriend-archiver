@@ -11,7 +11,7 @@ const stylesHandler = "style-loader";
 const { version } = require("./package.json");
 
 module.exports = (env) => {
-  const isProduction = env.NODE_ENV == "production";
+  const isProduction = process.env.NODE_ENV == "production";
 
   const config = {
     entry: {
@@ -99,7 +99,7 @@ module.exports = (env) => {
       extensions: [".tsx", ".ts", ".js"],
     },
     optimization: {
-      minimize: false,
+      minimize: isProduction,
     },
   };
 
