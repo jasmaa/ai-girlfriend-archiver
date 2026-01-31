@@ -25,6 +25,6 @@ export function determineCurrentProvider() {
   } else if (url.includes("chat.deepseek.com")) {
     return Provider.DEEPSEEK;
   } else {
-    return null;
+    throw new Error("unable to determine provider");
   }
 }

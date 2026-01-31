@@ -1,4 +1,9 @@
-import { Message, CreateArchiveRequest } from "../messaging";
+import {
+  Message,
+  CreateArchiveRequest,
+  CreateArchiveResponse,
+  Status,
+} from "../messaging";
 
 async function getCurrentTab() {
   let queryOptions = { active: true, lastFocusedWindow: true };
@@ -14,12 +19,18 @@ async function getCurrentTab() {
     console.log(`Received ${message.id} request.`);
     if (message.id === Message.CREATE_ARCHIVE) {
       (async () => {
-        const req = message as CreateArchiveRequest;
-
-        const currentTab = await getCurrentTab();
-        await chrome.tabs.sendMessage(currentTab.id, req);
-
-        sendResponse({});
+        try {
+          const req = message as CreateArchiveRequest;
+          const currentTab = await getCurrentTab();
+          const res = await chrome.tabs.sendMessage(currentTab.id, req);
+          sendResponse(res);
+        } catch (e) {
+          const res: CreateArchiveResponse = {
+            status: Status.ERROR,
+            errorMessage: e.message,
+          };
+          sendResponse(res);
+        }
       })();
       return true;
     }

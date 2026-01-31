@@ -1,14 +1,7 @@
 import FileSaver from "file-saver";
-import * as chatgpt from "../providers/chatgpt";
-import * as copilot from "../providers/copilot";
-import * as gemini from "../providers/gemini";
-import * as claude from "../providers/claude";
-import * as perplexity from "../providers/perplexity";
-import * as grok from "../providers/grok";
-import * as deepseek from "../providers/deepseek";
-import { Message } from "../messaging";
-import { determineCurrentProvider, Provider } from "../provider";
-import { generateArchive } from "../archive";
+import { CreateArchiveResponse, Message, Status } from "../messaging";
+import { determineCurrentProvider } from "../provider";
+import { generateArchive, generateArchiveFiles } from "../archive";
 
 (async () => {
   console.log("Started archiver content!");
@@ -16,39 +9,23 @@ import { generateArchive } from "../archive";
   chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (message.id === Message.CREATE_ARCHIVE) {
       (async () => {
-        const provider = determineCurrentProvider();
-        if (provider === Provider.CHATGPT) {
-          const archiveFiles = await chatgpt.generateArchiveFiles();
+        try {
+          const provider = determineCurrentProvider();
+          const archiveFiles = await generateArchiveFiles(provider);
           const content = await generateArchive(archiveFiles);
           FileSaver.saveAs(content, "example.zip");
-        } else if (provider === Provider.COPILOT) {
-          const archiveFiles = await copilot.generateArchiveFiles();
-          const content = await generateArchive(archiveFiles);
-          FileSaver.saveAs(content, "example.zip");
-        } else if (provider === Provider.GEMINI) {
-          const archiveFiles = await gemini.generateArchiveFiles();
-          const content = await generateArchive(archiveFiles);
-          FileSaver.saveAs(content, "example.zip");
-        } else if (provider === Provider.CLAUDE) {
-          const archiveFiles = await claude.generateArchiveFiles();
-          const content = await generateArchive(archiveFiles);
-          FileSaver.saveAs(content, "example.zip");
-        } else if (provider === Provider.PERPLEXITY) {
-          const archiveFiles = await perplexity.generateArchiveFiles();
-          const content = await generateArchive(archiveFiles);
-          FileSaver.saveAs(content, "example.zip");
-        } else if (provider === Provider.GROK) {
-          const archiveFiles = await grok.generateArchiveFiles();
-          const content = await generateArchive(archiveFiles);
-          FileSaver.saveAs(content, "example.zip");
-        } else if (provider === Provider.DEEPSEEK) {
-          const archiveFiles = await deepseek.generateArchiveFiles();
-          const content = await generateArchive(archiveFiles);
-          FileSaver.saveAs(content, "example.zip");
-        } else {
-          console.log("No supported provider found. Skipping.");
+
+          const res: CreateArchiveResponse = {
+            status: Status.SUCCESS,
+          };
+          sendResponse(res);
+        } catch (e) {
+          const res: CreateArchiveResponse = {
+            status: Status.ERROR,
+            errorMessage: e.message,
+          };
+          sendResponse(res);
         }
-        sendResponse({});
       })();
       return true;
     }
