@@ -10,10 +10,14 @@ import { generateArchive, generateArchiveFiles } from "../archive";
     if (message.id === Message.CREATE_ARCHIVE) {
       (async () => {
         try {
+          const now = new Date();
           const provider = determineCurrentProvider();
           const archiveFiles = await generateArchiveFiles(provider);
           const content = await generateArchive(archiveFiles);
-          FileSaver.saveAs(content, "example.zip");
+          FileSaver.saveAs(
+            content,
+            `archive-${provider.toLowerCase()}-${now.getTime()}.zip`
+          );
 
           const res: CreateArchiveResponse = {
             status: Status.SUCCESS,
