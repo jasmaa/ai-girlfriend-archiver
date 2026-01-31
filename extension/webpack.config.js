@@ -24,7 +24,7 @@ module.exports = (env) => {
         filename: "./background.js",
       },
       popup: {
-        import: "./src/entrypoints/pages/popup/index.ts",
+        import: "./src/entrypoints/pages/popup/index.tsx",
         filename: "./pages/popup.js",
       },
       dashboard: {
