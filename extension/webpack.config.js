@@ -24,8 +24,12 @@ module.exports = (env) => {
         filename: "./background.js",
       },
       popup: {
-        import: "./src/entrypoints/popup/index.ts",
-        filename: "./popup/index.js",
+        import: "./src/entrypoints/pages/popup/index.ts",
+        filename: "./pages/popup.js",
+      },
+      dashboard: {
+        import: "./src/entrypoints/pages/dashboard/index.tsx",
+        filename: "./pages/dashboard.js",
       },
     },
     output: {
@@ -38,12 +42,16 @@ module.exports = (env) => {
       new CopyPlugin({
         patterns: [
           {
-            from: "./src/entrypoints/popup/index.html",
-            to: "./popup/index.html",
+            from: "./src/entrypoints/pages/dashboard/index.html",
+            to: "./pages/dashboard.html",
           },
           {
-            from: "./src/entrypoints/popup/bootstrap.min.css",
-            to: "./popup/bootstrap.min.css",
+            from: "./src/entrypoints/pages/popup/index.html",
+            to: "./pages/popup.html",
+          },
+          {
+            from: "./src/entrypoints/pages/bootstrap.min.css",
+            to: "./pages/bootstrap.min.css",
           },
           { from: "./src/icons", to: "./icons" },
           {

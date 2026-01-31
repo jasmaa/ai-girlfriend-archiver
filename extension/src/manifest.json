@@ -8,7 +8,7 @@
     "96": "icons/logo_96.png"
   },
   "action": {
-    "default_popup": "popup/index.html",
+    "default_popup": "pages/popup.html",
     "default_icon": {
       "48": "icons/logo_48.png"
     }
@@ -31,5 +31,6 @@
       ],
       "js": ["content.js"]
     }
-  ]
+  ],
+  "permissions": ["storage"]
 }

@@ -3,15 +3,19 @@ import {
   CreateArchiveResponse,
   Message,
   Status,
-} from "../../messaging";
+} from "../../../messaging";
 
 const createArchiveButton = document.getElementById(
   "create-archive-btn"
-) as HTMLSelectElement;
+) as HTMLButtonElement;
+
+const dashboardButton = document.getElementById(
+  "dashboard-btn"
+) as HTMLButtonElement;
 
 const errorAlertContainer = document.getElementById(
   "error-alert-container"
-) as HTMLSelectElement;
+) as HTMLDivElement;
 
 const errorAlert = document.getElementById("error-alert") as HTMLSelectElement;
 
@@ -42,4 +46,9 @@ createArchiveButton.addEventListener("click", async (e) => {
     createArchiveButton.disabled = false;
     createArchiveButton.textContent = "Create Archive";
   }
+});
+
+dashboardButton.addEventListener("click", () => {
+  chrome.tabs.create({ url: "dashboard.html" });
+  window.close();
 });
