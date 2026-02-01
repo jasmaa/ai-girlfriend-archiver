@@ -9,7 +9,6 @@ import {
 
 export default function App() {
   const [entries, setEntries] = useState<BulkArchiveConfigEntry[]>([]);
-  const [isSaving, setIsSaving] = useState(false);
   const [newProvider, setNewProvider] = useState(Provider.CHATGPT);
 
   useEffect(() => {
@@ -18,6 +17,15 @@ export default function App() {
       setEntries([...config.entries]);
     })();
   }, []);
+
+  useEffect(() => {
+    (async () => {
+      const updatedConfig: BulkArchiveConfig = {
+        entries,
+      };
+      await saveBulkArchiveConfig(updatedConfig);
+    })();
+  }, [entries]);
 
   return (
     <div className="container">
@@ -84,7 +92,7 @@ export default function App() {
                 <td>
                   <button
                     className="btn btn-success"
-                    onClick={() => {
+                    onClick={async () => {
                       const newEntry: BulkArchiveConfigEntry = {
                         provider: newProvider,
                       };
@@ -99,29 +107,6 @@ export default function App() {
               </tr>
             </tbody>
           </table>
-        </div>
-        <div className="mb-3">
-          <button
-            className="btn btn-primary"
-            disabled={isSaving}
-            onClick={async () => {
-              setIsSaving(true);
-              const updatedConfig: BulkArchiveConfig = {
-                entries,
-              };
-              await saveBulkArchiveConfig(updatedConfig);
-              await new Promise((resolve) => setTimeout(resolve, 500)); // Fake a bit of loading
-              setIsSaving(false);
-            }}
-          >
-            {isSaving && (
-              <span
-                className="spinner-border spinner-border-sm"
-                aria-hidden="true"
-              ></span>
-            )}
-            <span>Saving Configuration</span>
-          </button>
         </div>
       </div>
     </div>
