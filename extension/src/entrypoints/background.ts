@@ -11,6 +11,8 @@ import {
   CreateArchiveJobResponse,
   ArchiveJobStatus,
   GetCurrentArchiveJobResponse,
+  GetStatusRequest,
+  GetStatusResponse,
 } from "../messaging";
 import { getProviderURL } from "../provider";
 import { loadBulkArchiveConfig } from "../configuration";
@@ -20,6 +22,37 @@ async function getCurrentTab() {
   // `tab` will either be a `tabs.Tab` instance or `undefined`.
   let [tab] = await chrome.tabs.query(queryOptions);
   return tab;
+}
+
+async function waitForContentScriptAvailable(tabId: number) {
+  // Attempt connecting to content script retrying with exponential backoff
+  const MAX_RETRIES = 5;
+  for (let i = 0; i < MAX_RETRIES; i++) {
+    try {
+      const getStatusReq: GetStatusRequest = {
+        id: ContentMessage.GET_STATUS,
+      };
+      const getStatusRes = (await chrome.tabs.sendMessage(
+        tabId,
+        getStatusReq
+      )) as GetStatusResponse;
+
+      if (getStatusRes.status === MessageStatus.SUCCESS) {
+        break;
+      } else {
+        throw new Error("Did not receive SUCCESS message");
+      }
+    } catch (e) {
+      if (i < MAX_RETRIES - 1) {
+        console.log(`Content script was not healthy on try=${i}. Retrying...`);
+        await new Promise((resolve) =>
+          setTimeout(resolve, 100 * Math.pow(2, i))
+        );
+      } else {
+        throw e;
+      }
+    }
+  }
 }
 
 (async () => {
@@ -40,22 +73,30 @@ async function getCurrentTab() {
         const req = message as CreateArchiveJobRequest;
         if (req.jobType === ArchiveJobType.SINGLE) {
           try {
+            const currentTab = await getCurrentTab();
+
+            await waitForContentScriptAvailable(currentTab.id);
+
             const createArchiveFilesReq = {
               id: ContentMessage.CREATE_ARCHIVE_FILES,
             } as CreateArchiveFilesRequest;
-            const currentTab = await getCurrentTab();
-            const res = (await chrome.tabs.sendMessage(
+            const createArchiveFilesRes = (await chrome.tabs.sendMessage(
               currentTab.id,
               createArchiveFilesReq
             )) as CreateArchiveFilesResponse;
 
             const now = new Date();
-            const content = await generateArchive(res.archiveFiles);
+            const content = await generateArchive(
+              createArchiveFilesRes.archiveFiles
+            );
             FileSaver.saveAs(
               content,
-              `archive-${res.provider.toLowerCase()}-${now.getTime()}.zip`
+              `archive-${createArchiveFilesRes.provider.toLowerCase()}-${now.getTime()}.zip`
             );
 
+            const res: CreateArchiveJobResponse = {
+              status: MessageStatus.SUCCESS,
+            };
             sendResponse(res);
           } catch (e) {
             const res: CreateArchiveJobResponse = {
@@ -78,8 +119,9 @@ async function getCurrentTab() {
                 const createArchiveFilesReq: CreateArchiveFilesRequest = {
                   id: ContentMessage.CREATE_ARCHIVE_FILES,
                 };
-                // TODO: find a better way to wait for page load
-                await new Promise((resolve) => setTimeout(resolve, 5000));
+
+                await waitForContentScriptAvailable(tab.id);
+
                 const createArchiveFilesRes = (await chrome.tabs.sendMessage(
                   tab.id,
                   createArchiveFilesReq

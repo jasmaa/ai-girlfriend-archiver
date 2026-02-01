@@ -2,6 +2,7 @@ import {
   CreateArchiveFilesResponse,
   ContentMessage,
   MessageStatus,
+  GetStatusResponse,
 } from "../messaging";
 import { determineCurrentProvider } from "../provider";
 import { generateArchiveFiles } from "../scrapers";
@@ -31,6 +32,11 @@ import { generateArchiveFiles } from "../scrapers";
         }
       })();
       return true;
+    } else if (message.id === ContentMessage.GET_STATUS) {
+      const res: GetStatusResponse = {
+        status: MessageStatus.SUCCESS,
+      };
+      sendResponse(res);
     }
   });
 })();

@@ -1,19 +1,16 @@
 import { ArchiveFile } from "./scrapers";
 import { Provider } from "./provider";
 
-export enum BackgroundMessage {
-  GET_CURRENT_ARCHIVE_JOB = "background:GetCurrentArchiveJob",
-  CREATE_ARCHIVE_JOB = "background:CreateArchiveJob",
-}
-
-export enum ContentMessage {
-  GET_STATUS = "content:GetStatus",
-  CREATE_ARCHIVE_FILES = "content:CreateArchiveFiles",
-}
-
 export enum MessageStatus {
   SUCCESS = "SUCCESS",
   ERROR = "ERROR",
+}
+
+// Content
+
+export enum ContentMessage {
+  CREATE_ARCHIVE_FILES = "content:CreateArchiveFiles",
+  GET_STATUS = "content:GetStatus",
 }
 
 export interface CreateArchiveFilesRequest {
@@ -25,6 +22,22 @@ export interface CreateArchiveFilesResponse {
   errorMessage?: string;
   provider?: Provider;
   archiveFiles?: ArchiveFile[];
+}
+
+export interface GetStatusRequest {
+  id: ContentMessage.GET_STATUS;
+}
+
+export interface GetStatusResponse {
+  status: MessageStatus;
+  errorMessage?: string;
+}
+
+// Background
+
+export enum BackgroundMessage {
+  GET_CURRENT_ARCHIVE_JOB = "background:GetCurrentArchiveJob",
+  CREATE_ARCHIVE_JOB = "background:CreateArchiveJob",
 }
 
 export enum ArchiveJobType {
