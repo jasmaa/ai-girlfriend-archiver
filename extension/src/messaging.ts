@@ -1,5 +1,9 @@
+import { ArchiveFile } from "./archive";
+import { Provider } from "./provider";
+
 export enum Message {
-  CREATE_ARCHIVE = "create-archive",
+  CREATE_ARCHIVE_FILES = "create-archive-files",
+  BULK_CREATE_ARCHIVE_FILES = "bulk-create-archive-files",
 }
 
 export enum Status {
@@ -7,11 +11,31 @@ export enum Status {
   ERROR = "error",
 }
 
-export interface CreateArchiveRequest {
-  id: Message.CREATE_ARCHIVE;
+export interface CreateArchiveFilesRequest {
+  id: Message.CREATE_ARCHIVE_FILES;
 }
 
-export interface CreateArchiveResponse {
+export interface CreateArchiveFilesResponse {
   status: Status;
   errorMessage?: string;
+  provider?: Provider;
+  archiveFiles?: ArchiveFile[];
+}
+
+export interface BulkCreateArchiveFilesRequest {
+  id: Message.BULK_CREATE_ARCHIVE_FILES;
+  entries: {
+    provider: Provider;
+  }[];
+}
+
+export interface BulkCreateArchiveFilesResponse {
+  status: Status;
+  errorMessage?: string;
+  entries?: {
+    status: Status;
+    errorMessage?: string;
+    provider: Provider;
+    archiveFiles?: ArchiveFile[];
+  }[];
 }

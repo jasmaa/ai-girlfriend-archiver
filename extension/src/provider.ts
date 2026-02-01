@@ -32,3 +32,24 @@ export function determineCurrentProvider() {
     throw new Error("unable to determine provider");
   }
 }
+
+export function getProviderUrl(provider: Provider) {
+  switch (provider) {
+    case Provider.CHATGPT:
+      return "https://chatgpt.com";
+    case Provider.COPILOT:
+      return "https://copilot.microsoft.com";
+    case Provider.GEMINI:
+      return "https://gemini.google.com/app";
+    case Provider.CLAUDE:
+      return "https://claude.ai";
+    case Provider.PERPLEXITY:
+      return "https://www.perplexity.ai";
+    case Provider.GROK:
+      return "https://grok.com";
+    case Provider.DEEPSEEK:
+      return "https://chat.deepseek.com";
+    default:
+      throw new Error(`${provider} provider not supported`);
+  }
+}

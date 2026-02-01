@@ -1,13 +1,20 @@
 import React, { useState } from "react";
 import {
-  CreateArchiveRequest,
-  CreateArchiveResponse,
+  BulkCreateArchiveFilesRequest,
+  BulkCreateArchiveFilesResponse,
+  CreateArchiveFilesRequest,
+  CreateArchiveFilesResponse,
   Message,
   Status,
 } from "../../../messaging";
+import { loadBulkArchiveConfig } from "../../../configuration";
+import FileSaver from "file-saver";
+import { generateArchive, generateBulkArchive } from "../../../archive";
 
 export default function App() {
-  const [isGenerating, setIsGenerating] = useState(false);
+  const [isGeneratingSingleArchive, setIsGeneratingSingleArchive] =
+    useState(false);
+  const [isGeneratingBulkArchive, setIsGeneratingBulkArchive] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string>();
 
   return (
@@ -24,36 +31,96 @@ export default function App() {
         <button
           type="button"
           className="btn btn-primary"
-          disabled={isGenerating}
+          disabled={isGeneratingSingleArchive || isGeneratingBulkArchive}
           onClick={async () => {
-            setIsGenerating(true);
+            setErrorMessage(undefined);
+            setIsGeneratingSingleArchive(true);
             try {
-              const req: CreateArchiveRequest = {
-                id: Message.CREATE_ARCHIVE,
+              const req: CreateArchiveFilesRequest = {
+                id: Message.CREATE_ARCHIVE_FILES,
               };
               console.log("Sending create archive request...");
 
               const res = (await chrome.runtime.sendMessage(
                 req
-              )) as CreateArchiveResponse;
+              )) as CreateArchiveFilesResponse;
 
               if (res.status === Status.ERROR) {
                 setErrorMessage(res.errorMessage);
-              } else if (res.status === Status.SUCCESS) {
-                setErrorMessage(undefined);
+                return;
               }
+
+              const now = new Date();
+              const content = await generateArchive(res);
+              FileSaver.saveAs(
+                content,
+                `archive-${res.provider.toLowerCase()}-${now.getTime()}.zip`
+              );
+            } catch (e) {
+              setErrorMessage(e.message);
             } finally {
-              setIsGenerating(false);
+              setIsGeneratingSingleArchive(false);
             }
           }}
         >
-          {isGenerating && (
+          {isGeneratingSingleArchive && (
             <span
               className="spinner-border spinner-border-sm"
               aria-hidden="true"
             ></span>
           )}
-          <span>{isGenerating ? "Generating..." : "Create archive"}</span>
+          <span>
+            {isGeneratingSingleArchive ? "Generating..." : "Archive this site"}
+          </span>
+        </button>
+      </div>
+
+      <div className="mb-3">
+        <button
+          type="button"
+          className="btn btn-primary"
+          disabled={isGeneratingSingleArchive || isGeneratingBulkArchive}
+          onClick={async () => {
+            setErrorMessage(undefined);
+            setIsGeneratingBulkArchive(true);
+            try {
+              const config = await loadBulkArchiveConfig();
+              const req: BulkCreateArchiveFilesRequest = {
+                id: Message.BULK_CREATE_ARCHIVE_FILES,
+                entries: config.entries.map((entry) => ({
+                  provider: entry.provider,
+                })),
+              };
+              console.log("Sending create bulk archive request...");
+
+              const res = (await chrome.runtime.sendMessage(
+                req
+              )) as BulkCreateArchiveFilesResponse;
+
+              if (res.status === Status.ERROR) {
+                setErrorMessage(res.errorMessage);
+                return;
+              }
+
+              const now = new Date();
+              const content = await generateBulkArchive(res);
+              FileSaver.saveAs(content, `archive-all-${now.getTime()}.zip`);
+            } catch (e) {
+              setErrorMessage(e.message);
+            } finally {
+              setIsGeneratingBulkArchive(false);
+            }
+          }}
+        >
+          {isGeneratingBulkArchive && (
+            <span
+              className="spinner-border spinner-border-sm"
+              aria-hidden="true"
+            ></span>
+          )}
+          <span>
+            {isGeneratingBulkArchive ? "Generating..." : "Archive all sites"}
+          </span>
         </button>
       </div>
 
