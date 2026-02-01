@@ -9,12 +9,11 @@ export enum BackgroundMessage {
 export enum ContentMessage {
   GET_STATUS = "content:GetStatus",
   CREATE_ARCHIVE_FILES = "content:CreateArchiveFiles",
-  BULK_CREATE_ARCHIVE_FILES = "content:BulkCreateArchiveFiles",
 }
 
 export enum MessageStatus {
-  SUCCESS = "success",
-  ERROR = "error",
+  SUCCESS = "SUCCESS",
+  ERROR = "ERROR",
 }
 
 export interface CreateArchiveFilesRequest {
@@ -28,32 +27,14 @@ export interface CreateArchiveFilesResponse {
   archiveFiles?: ArchiveFile[];
 }
 
-export interface BulkCreateArchiveFilesRequest {
-  id: ContentMessage.BULK_CREATE_ARCHIVE_FILES;
-  entries: {
-    provider: Provider;
-  }[];
-}
-
-export interface BulkCreateArchiveFilesResponse {
-  status: MessageStatus;
-  errorMessage?: string;
-  entries?: {
-    status: MessageStatus;
-    errorMessage?: string;
-    provider: Provider;
-    archiveFiles?: ArchiveFile[];
-  }[];
-}
-
 export enum ArchiveJobType {
-  SINGLE,
-  BULK,
+  SINGLE = "SINGLE",
+  BULK = "BULK",
 }
 
 export enum ArchiveJobStatus {
-  NONE = "none",
-  IN_PROGRESS = "in-progress",
+  NONE = "NONE",
+  IN_PROGRESS = "IN_PROGRESS",
 }
 
 export interface CreateArchiveJobRequest {

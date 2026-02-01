@@ -1,30 +1,23 @@
 import JSZip from "jszip";
 import { generateArchive, generateBulkArchive } from "./archive";
-import {
-  BulkCreateArchiveFilesResponse,
-  CreateArchiveFilesResponse,
-  MessageStatus,
-} from "./messaging";
+import { CreateArchiveFilesResponse, MessageStatus } from "./messaging";
 import { Provider } from "./provider";
+import { ArchiveFile } from "./scrapers";
 
 describe("test generateArchive", () => {
   it("generates archive", async () => {
-    const res: CreateArchiveFilesResponse = {
-      status: MessageStatus.SUCCESS,
-      provider: Provider.CHATGPT,
-      archiveFiles: [
-        {
-          fileSlug: "convo1",
-          data: {},
-        },
-        {
-          fileSlug: "convo2",
-          data: {},
-        },
-      ],
-    };
+    const archiveFiles: ArchiveFile[] = [
+      {
+        fileSlug: "convo1",
+        data: {},
+      },
+      {
+        fileSlug: "convo2",
+        data: {},
+      },
+    ];
 
-    const content = await generateArchive(res);
+    const content = await generateArchive(archiveFiles);
 
     const zip = await JSZip.loadAsync(content);
     expect(zip.files["convo1.json"]).toBeTruthy();
@@ -34,37 +27,34 @@ describe("test generateArchive", () => {
 
 describe("test generateBulkArchive", () => {
   it("generates bulk archive when all entries are successful", async () => {
-    const res: BulkCreateArchiveFilesResponse = {
-      status: MessageStatus.SUCCESS,
-      entries: [
-        {
-          status: MessageStatus.SUCCESS,
-          provider: Provider.CHATGPT,
-          archiveFiles: [
-            {
-              fileSlug: "convo1",
-              data: {},
-            },
-            {
-              fileSlug: "convo2",
-              data: {},
-            },
-          ],
-        },
-        {
-          status: MessageStatus.SUCCESS,
-          provider: Provider.GEMINI,
-          archiveFiles: [
-            {
-              fileSlug: "convo1",
-              data: {},
-            },
-          ],
-        },
-      ],
-    };
+    const entries: CreateArchiveFilesResponse[] = [
+      {
+        status: MessageStatus.SUCCESS,
+        provider: Provider.CHATGPT,
+        archiveFiles: [
+          {
+            fileSlug: "convo1",
+            data: {},
+          },
+          {
+            fileSlug: "convo2",
+            data: {},
+          },
+        ],
+      },
+      {
+        status: MessageStatus.SUCCESS,
+        provider: Provider.GEMINI,
+        archiveFiles: [
+          {
+            fileSlug: "convo1",
+            data: {},
+          },
+        ],
+      },
+    ];
 
-    const content = await generateBulkArchive(res);
+    const content = await generateBulkArchive(entries);
 
     const zip = await JSZip.loadAsync(content);
     expect(zip.files["CHATGPT/convo1.json"]).toBeTruthy();
@@ -73,32 +63,29 @@ describe("test generateBulkArchive", () => {
   });
 
   it("generates bulk archive when some entries are error", async () => {
-    const res: BulkCreateArchiveFilesResponse = {
-      status: MessageStatus.SUCCESS,
-      entries: [
-        {
-          status: MessageStatus.SUCCESS,
-          provider: Provider.CHATGPT,
-          archiveFiles: [
-            {
-              fileSlug: "convo1",
-              data: {},
-            },
-            {
-              fileSlug: "convo2",
-              data: {},
-            },
-          ],
-        },
-        {
-          status: MessageStatus.ERROR,
-          provider: Provider.DEEPSEEK,
-          errorMessage: "User was not authorized",
-        },
-      ],
-    };
+    const entries: CreateArchiveFilesResponse[] = [
+      {
+        status: MessageStatus.SUCCESS,
+        provider: Provider.CHATGPT,
+        archiveFiles: [
+          {
+            fileSlug: "convo1",
+            data: {},
+          },
+          {
+            fileSlug: "convo2",
+            data: {},
+          },
+        ],
+      },
+      {
+        status: MessageStatus.ERROR,
+        provider: Provider.DEEPSEEK,
+        errorMessage: "User was not authorized",
+      },
+    ];
 
-    const content = await generateBulkArchive(res);
+    const content = await generateBulkArchive(entries);
 
     const zip = await JSZip.loadAsync(content);
 

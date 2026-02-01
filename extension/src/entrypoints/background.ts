@@ -9,7 +9,6 @@ import {
   CreateArchiveJobRequest,
   ArchiveJobType,
   CreateArchiveJobResponse,
-  BulkCreateArchiveFilesResponse,
   ArchiveJobStatus,
   GetCurrentArchiveJobResponse,
 } from "../messaging";
@@ -51,7 +50,7 @@ async function getCurrentTab() {
             )) as CreateArchiveFilesResponse;
 
             const now = new Date();
-            const content = await generateArchive(res);
+            const content = await generateArchive(res.archiveFiles);
             FileSaver.saveAs(
               content,
               `archive-${res.provider.toLowerCase()}-${now.getTime()}.zip`
@@ -102,14 +101,8 @@ async function getCurrentTab() {
               }
             }
 
-            // TODO: refactor to remove this
-            const bulkRes: BulkCreateArchiveFilesResponse = {
-              status: MessageStatus.SUCCESS,
-              entries: resEntries,
-            };
-
             const now = new Date();
-            const content = await generateBulkArchive(bulkRes);
+            const content = await generateBulkArchive(resEntries);
             FileSaver.saveAs(content, `archive-all-${now.getTime()}.zip`);
 
             const res: CreateArchiveJobResponse = {

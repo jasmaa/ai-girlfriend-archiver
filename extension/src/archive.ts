@@ -1,22 +1,21 @@
 import JSZip from "jszip";
-import {
-  BulkCreateArchiveFilesResponse,
-  CreateArchiveFilesResponse,
-  MessageStatus,
-} from "./messaging";
+import { CreateArchiveFilesResponse, MessageStatus } from "./messaging";
+import { ArchiveFile } from "./scrapers";
 
-export async function generateArchive(res: CreateArchiveFilesResponse) {
+export async function generateArchive(archiveFiles: ArchiveFile[]) {
   const zip = new JSZip();
-  for (const archiveFile of res.archiveFiles) {
+  for (const archiveFile of archiveFiles) {
     zip.file(`${archiveFile.fileSlug}.json`, JSON.stringify(archiveFile.data));
   }
   const content = await zip.generateAsync({ type: "blob" });
   return content;
 }
 
-export async function generateBulkArchive(res: BulkCreateArchiveFilesResponse) {
+export async function generateBulkArchive(
+  entries: CreateArchiveFilesResponse[]
+) {
   const zip = new JSZip();
-  for (const entry of res.entries) {
+  for (const entry of entries) {
     if (entry.status === MessageStatus.SUCCESS) {
       for (const archiveFile of entry.archiveFiles) {
         zip
