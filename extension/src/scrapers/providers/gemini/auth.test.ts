@@ -1,4 +1,4 @@
-import * as domHelpers from "./dom-helpers";
+import * as domHelpers from "../../../dom-helpers";
 import { getSession } from "./auth";
 
 describe("test Gemini getSession", () => {

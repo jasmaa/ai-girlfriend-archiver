@@ -6,7 +6,7 @@ import {
   BulkCreateArchiveFilesRequest,
   BulkCreateArchiveFilesResponse,
 } from "../messaging";
-import { getProviderUrl, Provider } from "../provider";
+import { getProviderURL, Provider } from "../provider";
 
 async function getCurrentTab() {
   let queryOptions = { active: true, lastFocusedWindow: true };
@@ -44,7 +44,7 @@ async function getCurrentTab() {
           const resEntries = [];
           for (const entry of req.entries) {
             const tab = await chrome.tabs.create({
-              url: getProviderUrl(entry.provider),
+              url: getProviderURL(entry.provider),
             });
             try {
               const createArchiveFilesReq: CreateArchiveFilesRequest = {

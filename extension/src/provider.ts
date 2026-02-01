@@ -1,3 +1,5 @@
+import { getWindowLocationHref } from "./dom-helpers";
+
 export enum Provider {
   CHATGPT = "CHATGPT",
   COPILOT = "COPILOT",
@@ -13,7 +15,7 @@ export function getAllProviders() {
 }
 
 export function determineCurrentProvider() {
-  const url = window.location.href;
+  const url = getWindowLocationHref();
   if (url.includes("chatgpt.com")) {
     return Provider.CHATGPT;
   } else if (url.includes("copilot.microsoft.com")) {
@@ -33,23 +35,20 @@ export function determineCurrentProvider() {
   }
 }
 
-export function getProviderUrl(provider: Provider) {
-  switch (provider) {
-    case Provider.CHATGPT:
-      return "https://chatgpt.com";
-    case Provider.COPILOT:
-      return "https://copilot.microsoft.com";
-    case Provider.GEMINI:
-      return "https://gemini.google.com/app";
-    case Provider.CLAUDE:
-      return "https://claude.ai";
-    case Provider.PERPLEXITY:
-      return "https://www.perplexity.ai";
-    case Provider.GROK:
-      return "https://grok.com";
-    case Provider.DEEPSEEK:
-      return "https://chat.deepseek.com";
-    default:
-      throw new Error(`Provider ${provider} not supported`);
+export function getProviderURL(provider: Provider) {
+  const mapping = new Map([
+    [Provider.CHATGPT, "https://chatgpt.com"],
+    [Provider.COPILOT, "https://copilot.microsoft.com"],
+    [Provider.GEMINI, "https://gemini.google.com/app"],
+    [Provider.CLAUDE, "https://claude.ai"],
+    [Provider.PERPLEXITY, "https://www.perplexity.ai"],
+    [Provider.GROK, "https://grok.com"],
+    [Provider.DEEPSEEK, "https://chat.deepseek.com"],
+  ]);
+
+  if (mapping.has(provider)) {
+    return mapping.get(provider);
+  } else {
+    throw new Error(`Provider ${provider} not supported`);
   }
 }

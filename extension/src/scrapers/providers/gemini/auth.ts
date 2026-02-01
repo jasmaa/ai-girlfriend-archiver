@@ -1,4 +1,4 @@
-import { getWindowLocationHref } from "./dom-helpers";
+import { getWindowLocationHref } from "../../../dom-helpers";
 import { Session } from "./models";
 
 function determineGoogleUserIndex() {
