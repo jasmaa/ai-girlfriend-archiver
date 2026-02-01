@@ -6,4 +6,5 @@ module.exports = {
   testEnvironment: "jsdom",
   collectCoverage: true,
   coverageReporters: ["json", "html"],
+  setupFilesAfterEnv: ["./jest.setup.js"],
 };

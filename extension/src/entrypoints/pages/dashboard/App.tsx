@@ -43,7 +43,7 @@ export default function App() {
             </thead>
             <tbody>
               {entries.map((entry, idx) => (
-                <tr>
+                <tr key={`row-${idx}`}>
                   <td>
                     <select
                       className="form-select"
@@ -51,7 +51,9 @@ export default function App() {
                       disabled
                     >
                       {getAllProviders().map((provider) => (
-                        <option value={provider}>{provider}</option>
+                        <option key={provider} value={provider}>
+                          {provider}
+                        </option>
                       ))}
                     </select>
                   </td>
@@ -82,7 +84,9 @@ export default function App() {
                     }}
                   >
                     {getAllProviders().map((provider) => (
-                      <option value={provider}>{provider}</option>
+                      <option key={provider} value={provider}>
+                        {provider}
+                      </option>
                     ))}
                   </select>
                 </td>

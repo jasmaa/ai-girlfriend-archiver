@@ -29,6 +29,7 @@ export default function App() {
 
       <div className="mb-3">
         <button
+          data-testid="single-archive-btn"
           type="button"
           className="btn btn-primary"
           disabled={isGeneratingSingleArchive || isGeneratingBulkArchive}
@@ -77,6 +78,7 @@ export default function App() {
 
       <div className="mb-3">
         <button
+          data-testid="bulk-archive-btn"
           type="button"
           className="btn btn-primary"
           disabled={isGeneratingSingleArchive || isGeneratingBulkArchive}
@@ -126,6 +128,7 @@ export default function App() {
 
       <div className="mb-3">
         <button
+          data-testid="dashboard-btn"
           type="button"
           className="btn btn-primary"
           onClick={() => {
