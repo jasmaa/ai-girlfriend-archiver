@@ -1,3 +1,5 @@
+import FileSaver from "file-saver";
+import { generateArchive, generateBulkArchive } from "../archive";
 import {
   Message,
   CreateArchiveFilesRequest,
@@ -26,6 +28,14 @@ async function getCurrentTab() {
           const req = message as CreateArchiveFilesRequest;
           const currentTab = await getCurrentTab();
           const res = await chrome.tabs.sendMessage(currentTab.id, req);
+
+          const now = new Date();
+          const content = await generateArchive(res);
+          FileSaver.saveAs(
+            content,
+            `archive-${res.provider.toLowerCase()}-${now.getTime()}.zip`
+          );
+
           sendResponse(res);
         } catch (e) {
           const res: CreateArchiveFilesResponse = {
@@ -77,6 +87,11 @@ async function getCurrentTab() {
             status: Status.SUCCESS,
             entries: resEntries,
           };
+
+          const now = new Date();
+          const content = await generateBulkArchive(res);
+          FileSaver.saveAs(content, `archive-all-${now.getTime()}.zip`);
+
           sendResponse(res);
         } catch (e) {
           const res: BulkCreateArchiveFilesResponse = {

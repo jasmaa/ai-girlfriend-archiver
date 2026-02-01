@@ -50,13 +50,6 @@ export default function App() {
                 setErrorMessage(res.errorMessage);
                 return;
               }
-
-              const now = new Date();
-              const content = await generateArchive(res);
-              FileSaver.saveAs(
-                content,
-                `archive-${res.provider.toLowerCase()}-${now.getTime()}.zip`
-              );
             } catch (e) {
               setErrorMessage(e.message);
             } finally {
@@ -103,10 +96,6 @@ export default function App() {
                 setErrorMessage(res.errorMessage);
                 return;
               }
-
-              const now = new Date();
-              const content = await generateBulkArchive(res);
-              FileSaver.saveAs(content, `archive-all-${now.getTime()}.zip`);
             } catch (e) {
               setErrorMessage(e.message);
             } finally {
