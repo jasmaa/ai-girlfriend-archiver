@@ -1,5 +1,5 @@
 import * as z from "zod";
-import { ArchiveFile } from "../archive";
+import { ArchiveFile } from "..";
 
 const BASE_URL = "https://copilot.microsoft.com";
 
@@ -42,7 +42,7 @@ enum IdentityType {
 
 async function getCopilotSession() {
   if (!localStorage.getItem("hasBeenAuthenticated")) {
-    throw new Error("no session found!");
+    throw new Error("No session found!");
   }
 
   let idCredentials;
@@ -76,7 +76,7 @@ function determineIdentityType(session: Session) {
   if (sub.includes("google")) {
     return IdentityType.GOOGLE;
   } else {
-    throw new Error("unknown identity type");
+    throw new Error("Unknown identity type");
   }
 }
 

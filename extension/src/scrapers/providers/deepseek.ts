@@ -1,5 +1,5 @@
 import * as z from "zod";
-import { ArchiveFile } from "../archive";
+import { ArchiveFile } from "..";
 
 const Session = z.object({
   value: z.string(),
@@ -22,7 +22,7 @@ const BASE_URL = "https://chat.deepseek.com";
 
 function getSession() {
   if (!localStorage.getItem("userToken")) {
-    throw new Error("no session found!");
+    throw new Error("No session found!");
   }
   const session = Session.parse(JSON.parse(localStorage.getItem("userToken")));
   return session;

@@ -16,7 +16,7 @@ async function getAccessToken() {
   const scriptEls = document.querySelectorAll('[data-id="_gd"]');
 
   if (scriptEls.length < 1) {
-    throw new Error("unable to find access token");
+    throw new Error("Unable to find access token");
   }
 
   const scriptText = scriptEls[0].textContent;
@@ -24,7 +24,7 @@ async function getAccessToken() {
   const parts = accessTokenRe.exec(scriptText);
 
   if (!parts || parts.length < 1) {
-    throw new Error("unable to find access token");
+    throw new Error("Unable to find access token");
   }
 
   const accessToken = parts[1];

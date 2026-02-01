@@ -29,7 +29,7 @@ export function determineCurrentProvider() {
   } else if (url.includes("chat.deepseek.com")) {
     return Provider.DEEPSEEK;
   } else {
-    throw new Error("unable to determine provider");
+    throw new Error("Unable to determine provider from url");
   }
 }
 
@@ -50,6 +50,6 @@ export function getProviderUrl(provider: Provider) {
     case Provider.DEEPSEEK:
       return "https://chat.deepseek.com";
     default:
-      throw new Error(`${provider} provider not supported`);
+      throw new Error(`Provider ${provider} not supported`);
   }
 }

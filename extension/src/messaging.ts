@@ -1,4 +1,4 @@
-import { ArchiveFile } from "./archive";
+import { ArchiveFile } from "./scrapers";
 import { Provider } from "./provider";
 
 export enum Message {

@@ -1,5 +1,5 @@
 import * as z from "zod";
-import { ArchiveFile } from "../archive";
+import { ArchiveFile } from "..";
 
 const BASE_URL = "https://www.perplexity.ai";
 

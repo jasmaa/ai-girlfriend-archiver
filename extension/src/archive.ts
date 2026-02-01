@@ -1,42 +1,9 @@
 import JSZip from "jszip";
-import * as chatgpt from "./providers/chatgpt";
-import * as copilot from "./providers/copilot";
-import * as gemini from "./providers/gemini";
-import * as claude from "./providers/claude";
-import * as perplexity from "./providers/perplexity";
-import * as grok from "./providers/grok";
-import * as deepseek from "./providers/deepseek";
-import { Provider } from "./provider";
 import {
   BulkCreateArchiveFilesResponse,
   CreateArchiveFilesResponse,
   Status,
 } from "./messaging";
-
-export interface ArchiveFile {
-  fileSlug: string;
-  data: any;
-}
-
-export async function generateArchiveFiles(provider: Provider) {
-  if (provider === Provider.CHATGPT) {
-    return await chatgpt.generateArchiveFiles();
-  } else if (provider === Provider.COPILOT) {
-    return await copilot.generateArchiveFiles();
-  } else if (provider === Provider.GEMINI) {
-    return await gemini.generateArchiveFiles();
-  } else if (provider === Provider.CLAUDE) {
-    return await claude.generateArchiveFiles();
-  } else if (provider === Provider.PERPLEXITY) {
-    return await perplexity.generateArchiveFiles();
-  } else if (provider === Provider.GROK) {
-    return await grok.generateArchiveFiles();
-  } else if (provider === Provider.DEEPSEEK) {
-    return await deepseek.generateArchiveFiles();
-  } else {
-    throw new Error("provider is not supported");
-  }
-}
 
 export async function generateArchive(res: CreateArchiveFilesResponse) {
   const zip = new JSZip();

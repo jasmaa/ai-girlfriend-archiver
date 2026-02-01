@@ -1,4 +1,4 @@
-import { ArchiveFile } from "../../archive";
+import { ArchiveFile } from "../..";
 import { getSession } from "./auth";
 import { GeminiClient } from "./gemini-client";
 

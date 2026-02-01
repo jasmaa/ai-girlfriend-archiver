@@ -1,7 +1,6 @@
-import FileSaver from "file-saver";
 import { CreateArchiveFilesResponse, Message, Status } from "../messaging";
 import { determineCurrentProvider } from "../provider";
-import { generateArchive, generateArchiveFiles } from "../archive";
+import { generateArchiveFiles } from "../scrapers";
 
 (async () => {
   console.log("Started archiver content!");
