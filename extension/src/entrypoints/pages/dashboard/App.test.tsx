@@ -21,6 +21,9 @@ describe("test Dashboard page", () => {
           ],
         };
       });
+    jest
+      .spyOn(configuration, "saveBulkArchiveConfig")
+      .mockImplementation(async (updatedConfig) => {});
 
     const container = render(<App />);
 
