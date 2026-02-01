@@ -1,21 +1,41 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
-  BulkCreateArchiveFilesRequest,
-  BulkCreateArchiveFilesResponse,
-  CreateArchiveFilesRequest,
-  CreateArchiveFilesResponse,
-  Message,
-  Status,
+  BackgroundMessage,
+  MessageStatus,
+  CreateArchiveJobRequest,
+  ArchiveJobType,
+  CreateArchiveJobResponse,
+  GetCurrentArchiveJobRequest,
+  GetCurrentArchiveJobResponse,
+  ArchiveJobStatus,
 } from "../../../messaging";
-import { loadBulkArchiveConfig } from "../../../configuration";
-import FileSaver from "file-saver";
-import { generateArchive, generateBulkArchive } from "../../../archive";
 
 export default function App() {
-  const [isGeneratingSingleArchive, setIsGeneratingSingleArchive] =
-    useState(false);
-  const [isGeneratingBulkArchive, setIsGeneratingBulkArchive] = useState(false);
+  const jobStatusPollingRef = useRef(null);
+  const [isGeneratingArchive, setIsGeneratingArchive] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string>();
+
+  const queryAndUpdateIsGeneratingArchive = async () => {
+    const req: GetCurrentArchiveJobRequest = {
+      id: BackgroundMessage.GET_CURRENT_ARCHIVE_JOB,
+    };
+    const res = (await chrome.runtime.sendMessage(
+      req
+    )) as GetCurrentArchiveJobResponse;
+    setIsGeneratingArchive(res.jobStatus === ArchiveJobStatus.IN_PROGRESS);
+  };
+
+  useEffect(() => {
+    queryAndUpdateIsGeneratingArchive();
+    jobStatusPollingRef.current = setInterval(
+      queryAndUpdateIsGeneratingArchive,
+      3000
+    );
+
+    return () => {
+      clearInterval(jobStatusPollingRef.current);
+    };
+  }, []);
 
   return (
     <div className="d-flex flex-column p-3">
@@ -32,39 +52,40 @@ export default function App() {
           data-testid="single-archive-btn"
           type="button"
           className="btn btn-primary"
-          disabled={isGeneratingSingleArchive || isGeneratingBulkArchive}
+          disabled={isGeneratingArchive}
           onClick={async () => {
             setErrorMessage(undefined);
-            setIsGeneratingSingleArchive(true);
+            setIsGeneratingArchive(true);
             try {
-              const req: CreateArchiveFilesRequest = {
-                id: Message.CREATE_ARCHIVE_FILES,
+              const req: CreateArchiveJobRequest = {
+                id: BackgroundMessage.CREATE_ARCHIVE_JOB,
+                jobType: ArchiveJobType.SINGLE,
               };
               console.log("Sending create archive request...");
 
               const res = (await chrome.runtime.sendMessage(
                 req
-              )) as CreateArchiveFilesResponse;
+              )) as CreateArchiveJobResponse;
 
-              if (res.status === Status.ERROR) {
+              if (res.status === MessageStatus.ERROR) {
                 setErrorMessage(res.errorMessage);
                 return;
               }
             } catch (e) {
               setErrorMessage(e.message);
             } finally {
-              setIsGeneratingSingleArchive(false);
+              setIsGeneratingArchive(false);
             }
           }}
         >
-          {isGeneratingSingleArchive && (
+          {isGeneratingArchive && (
             <span
               className="spinner-border spinner-border-sm"
               aria-hidden="true"
             ></span>
           )}
           <span>
-            {isGeneratingSingleArchive ? "Generating..." : "Archive this site"}
+            {isGeneratingArchive ? "Generating..." : "Archive this site"}
           </span>
         </button>
       </div>
@@ -74,43 +95,40 @@ export default function App() {
           data-testid="bulk-archive-btn"
           type="button"
           className="btn btn-primary"
-          disabled={isGeneratingSingleArchive || isGeneratingBulkArchive}
+          disabled={isGeneratingArchive}
           onClick={async () => {
             setErrorMessage(undefined);
-            setIsGeneratingBulkArchive(true);
+            setIsGeneratingArchive(true);
             try {
-              const config = await loadBulkArchiveConfig();
-              const req: BulkCreateArchiveFilesRequest = {
-                id: Message.BULK_CREATE_ARCHIVE_FILES,
-                entries: config.entries.map((entry) => ({
-                  provider: entry.provider,
-                })),
+              const req: CreateArchiveJobRequest = {
+                id: BackgroundMessage.CREATE_ARCHIVE_JOB,
+                jobType: ArchiveJobType.BULK,
               };
               console.log("Sending create bulk archive request...");
 
               const res = (await chrome.runtime.sendMessage(
                 req
-              )) as BulkCreateArchiveFilesResponse;
+              )) as CreateArchiveJobResponse;
 
-              if (res.status === Status.ERROR) {
+              if (res.status === MessageStatus.ERROR) {
                 setErrorMessage(res.errorMessage);
                 return;
               }
             } catch (e) {
               setErrorMessage(e.message);
             } finally {
-              setIsGeneratingBulkArchive(false);
+              setIsGeneratingArchive(false);
             }
           }}
         >
-          {isGeneratingBulkArchive && (
+          {isGeneratingArchive && (
             <span
               className="spinner-border spinner-border-sm"
               aria-hidden="true"
             ></span>
           )}
           <span>
-            {isGeneratingBulkArchive ? "Generating..." : "Archive all sites"}
+            {isGeneratingArchive ? "Generating..." : "Archive all sites"}
           </span>
         </button>
       </div>

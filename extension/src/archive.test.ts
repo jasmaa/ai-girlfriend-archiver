@@ -3,14 +3,14 @@ import { generateArchive, generateBulkArchive } from "./archive";
 import {
   BulkCreateArchiveFilesResponse,
   CreateArchiveFilesResponse,
-  Status,
+  MessageStatus,
 } from "./messaging";
 import { Provider } from "./provider";
 
 describe("test generateArchive", () => {
   it("generates archive", async () => {
     const res: CreateArchiveFilesResponse = {
-      status: Status.SUCCESS,
+      status: MessageStatus.SUCCESS,
       provider: Provider.CHATGPT,
       archiveFiles: [
         {
@@ -35,10 +35,10 @@ describe("test generateArchive", () => {
 describe("test generateBulkArchive", () => {
   it("generates bulk archive when all entries are successful", async () => {
     const res: BulkCreateArchiveFilesResponse = {
-      status: Status.SUCCESS,
+      status: MessageStatus.SUCCESS,
       entries: [
         {
-          status: Status.SUCCESS,
+          status: MessageStatus.SUCCESS,
           provider: Provider.CHATGPT,
           archiveFiles: [
             {
@@ -52,7 +52,7 @@ describe("test generateBulkArchive", () => {
           ],
         },
         {
-          status: Status.SUCCESS,
+          status: MessageStatus.SUCCESS,
           provider: Provider.GEMINI,
           archiveFiles: [
             {
@@ -74,10 +74,10 @@ describe("test generateBulkArchive", () => {
 
   it("generates bulk archive when some entries are error", async () => {
     const res: BulkCreateArchiveFilesResponse = {
-      status: Status.SUCCESS,
+      status: MessageStatus.SUCCESS,
       entries: [
         {
-          status: Status.SUCCESS,
+          status: MessageStatus.SUCCESS,
           provider: Provider.CHATGPT,
           archiveFiles: [
             {
@@ -91,7 +91,7 @@ describe("test generateBulkArchive", () => {
           ],
         },
         {
-          status: Status.ERROR,
+          status: MessageStatus.ERROR,
           provider: Provider.DEEPSEEK,
           errorMessage: "User was not authorized",
         },

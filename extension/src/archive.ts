@@ -2,7 +2,7 @@ import JSZip from "jszip";
 import {
   BulkCreateArchiveFilesResponse,
   CreateArchiveFilesResponse,
-  Status,
+  MessageStatus,
 } from "./messaging";
 
 export async function generateArchive(res: CreateArchiveFilesResponse) {
@@ -17,7 +17,7 @@ export async function generateArchive(res: CreateArchiveFilesResponse) {
 export async function generateBulkArchive(res: BulkCreateArchiveFilesResponse) {
   const zip = new JSZip();
   for (const entry of res.entries) {
-    if (entry.status === Status.SUCCESS) {
+    if (entry.status === MessageStatus.SUCCESS) {
       for (const archiveFile of entry.archiveFiles) {
         zip
           .folder(entry.provider)
@@ -26,7 +26,7 @@ export async function generateBulkArchive(res: BulkCreateArchiveFilesResponse) {
             JSON.stringify(archiveFile.data)
           );
       }
-    } else if (entry.status === Status.ERROR) {
+    } else if (entry.status === MessageStatus.ERROR) {
       zip.folder(entry.provider).file(`error.txt`, entry.errorMessage);
     }
   }
