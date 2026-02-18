@@ -9,6 +9,8 @@ import {
   GetCurrentArchiveJobResponse,
   ArchiveJobStatus,
 } from "../../../messaging";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faGear } from "@fortawesome/free-solid-svg-icons";
 
 export default function App() {
   const jobStatusPollingRef = useRef(null);
@@ -137,13 +139,13 @@ export default function App() {
         <button
           data-testid="dashboard-btn"
           type="button"
-          className="btn btn-primary"
+          className="btn btn-secondary"
           onClick={() => {
             chrome.tabs.create({ url: "dashboard.html" });
             window.close();
           }}
         >
-          Dashboard
+          <FontAwesomeIcon icon={faGear} />
         </button>
       </div>
     </div>

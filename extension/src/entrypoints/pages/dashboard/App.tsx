@@ -30,7 +30,7 @@ export default function App() {
   return (
     <div className="container">
       <h1>Dashboard</h1>
-      <h2>Auto Archive Configuration</h2>
+      <h2>Bulk Archive Configuration</h2>
       <div className="d-flex flex-column p-3">
         <div className="mb-3">
           <table className="table">
