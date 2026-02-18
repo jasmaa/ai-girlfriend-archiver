@@ -19,6 +19,23 @@ describe("test Popup page", () => {
       return res;
     });
 
+    jest.spyOn(chrome.tabs, "query").mockImplementation(async () => {
+      return [
+        {
+          index: 0,
+          pinned: false,
+          highlighted: false,
+          windowId: 0,
+          active: true,
+          incognito: false,
+          selected: false,
+          discarded: false,
+          autoDiscardable: false,
+          groupId: 0,
+        },
+      ];
+    });
+
     const container = render(<App />);
 
     await container.findByTestId("single-archive-btn");

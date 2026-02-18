@@ -11,9 +11,11 @@ import {
 } from "../../../messaging";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faGear } from "@fortawesome/free-solid-svg-icons";
+import { getCurrentTab, waitForContentScriptAvailable } from "../../../utils";
 
 export default function App() {
   const jobStatusPollingRef = useRef(null);
+  const [isValidCurrentTab, setIsValidCurrentTab] = useState(false);
   const [isGeneratingArchive, setIsGeneratingArchive] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string>();
 
@@ -26,6 +28,14 @@ export default function App() {
     )) as GetCurrentArchiveJobResponse;
     setIsGeneratingArchive(res.jobStatus === ArchiveJobStatus.IN_PROGRESS);
   };
+
+  useEffect(() => {
+    (async () => {
+      const currentTab = await getCurrentTab();
+      await waitForContentScriptAvailable(currentTab.id);
+      setIsValidCurrentTab(true);
+    })();
+  }, []);
 
   useEffect(() => {
     queryAndUpdateIsGeneratingArchive();
@@ -54,7 +64,7 @@ export default function App() {
           data-testid="single-archive-btn"
           type="button"
           className="btn btn-primary"
-          disabled={isGeneratingArchive}
+          disabled={!isValidCurrentTab || isGeneratingArchive}
           onClick={async () => {
             setErrorMessage(undefined);
             setIsGeneratingArchive(true);
